@@ -1,0 +1,48 @@
+server:
+  port: 8080
+
+logging:
+  level:
+    root: WARN
+
+fiqo-db:
+  host: ${FIQO_DB_HOST:localhost}
+  port: ${FIQO_DB_PORT:5432}
+  db: ${FIQO_DB_DATABASE:fiqo}
+  username: ${FIQO_DB_USERNAME:admin}
+  password: ${FIQO_DB_PASSWORD:admin123}
+  url: jdbc:postgresql://${fiqo-db.host}:${fiqo-db.port}/${fiqo-db.db}
+
+storage:
+  strategy: {STORAGE_STRATEGY:minio}
+  minio:
+    base-url: ${MINIO_BASE_URL:http://localhost:9000}
+    bucket: ${MINIO_BUCKET_NAME:fiqo}
+    credentials:
+      access-key: ${MINIO_ACCESS_KEY:admin}
+      secret-key: ${MINIO_SECRET_KEY:admin123}
+
+spring:
+  datasource:
+    url: ${fiqo-db.url}
+    driver-class-name: org.postgresql.Driver
+    username: ${fiqo-db.username}
+    password: ${fiqo-db.password}
+
+  jpa:
+    show-sql: false
+    open-in-view: false
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    properties:
+      hibernate:
+        globally_quoted_identifiers: true
+
+  flyway:
+    baseline-on-migrate: true
+    baseline-description: "init"
+    baseline-version: 0
+    enabled: true

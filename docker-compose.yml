@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  #-------PostgreSQL service-------
+  fiqo-postgres:
+    container_name: fiqo-postgres
+    image: postgres:16.3-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-fiqo}
+      POSTGRES_USER: ${POSTGRES_USER:-admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin123}
+    networks:
+      - fiqo
+
+  #-------MinIO service-------
+  fiqo-minio:
+    container_name: fiqo-minio
+    image: minio/minio:latest
+    ports:
+      - "9000:9000"     # MinIO API
+      - "9001:9001"     # MinIO Console (UI)
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-admin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-admin123}
+    command: server /data --console-address ":9001"
+    volumes:
+      - fiqo-minio-data:/data
+    networks:
+      - fiqo
+
+  fiqo-minio-mc:
+    container_name: fiqo-minio-mc
+    image: minio/mc:latest
+    depends_on:
+      - fiqo-minio
+    entrypoint: >
+      /bin/bash -c "
+      sleep 3 &&
+      /usr/bin/mc alias set local http://fiqo-minio:9000 admin admin123 &&
+      /usr/bin/mc mb local/fiqo
+      "
+    networks:
+      - fiqo
+
+volumes:
+  fiqo-minio-data:
+
+networks:
+  fiqo:
+    name: fiqo
+    driver: bridge

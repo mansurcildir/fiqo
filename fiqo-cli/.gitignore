@@ -3,3 +3,5 @@ fiqo_cli.egg-info/
 dist/
 venv/
 dist/
+__pycache__/
+*.pyc

@@ -1,0 +1,5 @@
+.env
+fiqo_cli.egg-info/
+dist/
+venv/
+dist/

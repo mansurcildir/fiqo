@@ -3,18 +3,19 @@ package io.fiqo.backend.repository;
 import io.fiqo.backend.data.entity.File;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface FileRepository extends JpaRepository<File, Long> {
   @NotNull
-  List<File> findAllByDeletedFalse();
+  List<File> findAllByPathStartingWithAndDeletedFalse(@NotNull String path);
 
   @NotNull
-  Optional<File> findByPathAndUserIdAndDeletedFalse(@NotNull String path, @NotNull Long userId);
+  Optional<File> findByPathAndUserUuidAndDeletedFalse(@NotNull String path, @NotNull UUID userId);
 
-  void deleteByPathAndUserIdAndDeletedFalse(@NotNull String path, @NotNull Long userId);
+  void deleteByPathAndUserUuidAndDeletedFalse(@NotNull String path, @NotNull UUID userId);
 
-  void deleteAllByPathStartingWithAndUserIdAndDeletedFalse(
-      @NotNull String path, @NotNull Long userId);
+  void deleteAllByPathStartingWithAndUserUuidAndDeletedFalse(
+      @NotNull String path, @NotNull UUID userId);
 }

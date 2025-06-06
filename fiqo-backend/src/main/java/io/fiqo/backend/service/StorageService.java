@@ -45,7 +45,7 @@ public class StorageService {
             .orElseThrow(() -> new ItemNotFoundException("userNotFound"));
 
     final Optional<File> opt =
-        this.fileRepository.findByPathAndUserIdAndDeletedFalse(path, user.getId());
+        this.fileRepository.findByPathAndUserUuidAndDeletedFalse(path, user.getUuid());
 
     if (opt.isPresent()) {
       throw new DuplicateItemException("duplicateItem");
@@ -68,14 +68,9 @@ public class StorageService {
 
   public byte[] downloadFile(final @NotNull UUID userUuid, final @NotNull String path)
       throws Exception {
-    final User user =
-        this.userRepository
-            .findByUuidAndDeletedFalse(userUuid)
-            .orElseThrow(() -> new ItemNotFoundException("userNotFound"));
-
     final File file =
         this.fileRepository
-            .findByPathAndUserIdAndDeletedFalse(path, user.getId())
+            .findByPathAndUserUuidAndDeletedFalse(path, userUuid)
             .orElseThrow(() -> new ItemNotFoundException("fileNotFound"));
 
     return this.storageStrategy.download(file.getPath());
@@ -84,26 +79,23 @@ public class StorageService {
   public void removeFile(
       final @NotNull UUID userUuid, final @NotNull String relativePath, final boolean recursive)
       throws Exception {
-    final User user =
-        this.userRepository
-            .findByUuidAndDeletedFalse(userUuid)
-            .orElseThrow(() -> new ItemNotFoundException("userNotFound"));
 
     final String path = userUuid + "/" + relativePath;
     this.storageStrategy.remove(path, recursive);
 
     if (recursive) {
-      this.fileRepository.deleteAllByPathStartingWithAndUserIdAndDeletedFalse(path, user.getId());
+      this.fileRepository.deleteAllByPathStartingWithAndUserUuidAndDeletedFalse(path, userUuid);
       return;
     }
-    this.fileRepository.deleteByPathAndUserIdAndDeletedFalse(path, user.getId());
+    this.fileRepository.deleteByPathAndUserUuidAndDeletedFalse(path, userUuid);
   }
 
   public @NotNull List<FileInfo> listFiles(
-      final @NotNull UUID userUuid, final @NotNull String relativePath) throws Exception {
+      final @NotNull UUID userUuid, final @NotNull String relativePath) {
 
     final String path = userUuid + "/" + relativePath;
-    List<FileInfo> a = this.storageStrategy.list(path);
-    return this.storageStrategy.list(path);
+    return this.fileRepository.findAllByPathStartingWithAndDeletedFalse(path).stream()
+        .map(this.fileConverter::toFileInfo)
+        .toList();
   }
 }

@@ -1,8 +1,9 @@
-import requests
-from pathlib import Path
 import os
 import jwt
 import time
+import requests
+from pathlib import Path
+from rich.progress import track
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -153,7 +154,7 @@ def push(target: str, resource: str):
 
     elif resource_path.is_dir():
         for root, dirs, files in os.walk(resource):
-            for file in files:
+            for file in track(files, description="Uploading..."):
                 full_path = Path(root) / file
                 relative_path = full_path.relative_to(resource_path.parent)
                 dest_path = target_path / relative_path.as_posix()
@@ -192,7 +193,7 @@ def pull(target: str, resource: str):
     resource_path = Path(resource)
     resource_name = resource_path.name
 
-    for file in files:
+    for file in track(files, description="Downloading..."):
         file_path: str = file["path"]
         suffix = file_path.partition(str(resource_path))[2].lstrip("/\\")
         relative = (

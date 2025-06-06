@@ -3,12 +3,13 @@ package io.fiqo.backend.data.dto.file;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 
 @Getter
 @Setter
 @Builder
 public class FileInfo {
-  private String name;
-  private String path;
-  private String extension;
+  private @NotNull String name;
+  private @NotNull String path;
+  private @NotNull String extension;
 }

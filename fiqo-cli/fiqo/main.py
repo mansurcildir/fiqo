@@ -92,7 +92,7 @@ def remove(
 
 
 @app.command()
-def ls(path: str = typer.Argument(".", help="Path to list")):
+def ls(path: str = typer.Argument("./", help="Path to list")):
     try:
         result = client.list(path)
         for file in result:
@@ -111,6 +111,15 @@ def select(target: str, resource: str):
         client.pull(target, resource + "/" + file)
     else:
         print("⚠️  No selection made.")
+
+
+@app.command()
+def sync(path: str):
+    try:
+        client.sync_file(path)
+    except Exception as e:
+        print(f"{e}")
+        raise typer.Exit(code=1)
 
 
 if __name__ == "__main__":

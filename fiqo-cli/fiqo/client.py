@@ -1,10 +1,12 @@
 import os
 import jwt
 import time
+import hashlib
 import requests
 from pathlib import Path
 from rich.progress import track
 from dotenv import load_dotenv
+from datetime import datetime, timezone
 
 load_dotenv()
 
@@ -221,3 +223,51 @@ def remove(path: str, recursive: bool):
         raise Exception(f"⚠️  {res.status_code} {res.json()["message"]} ")
 
     print(f"\n✅ Removed successfully")
+
+
+def file_hash(path: Path):
+    hash_fn = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_fn.update(chunk)
+    return hash_fn.hexdigest()
+
+
+def sync_file(path: str):
+
+    local_files = set(str(f) for f in Path(path).rglob("*") if f.is_file())
+    remote_files = set([])
+    files = list(path)
+
+    # remote
+    for file in track(files, description="Synchronizing..."):
+        file_path = Path("/".join(file["path"].split("/")[1:]))
+        remote_files.add(str(file_path))
+
+        if not file_path.exists():
+            file_path.parent.mkdir(parents=True, exist_ok=True)
+            download_file(file_path, file["path"])
+
+        local_hash = file_hash(file_path)
+
+        remote_hash = file["digest"].split("sha256:")[1]
+
+        if local_hash != remote_hash:
+            local_mtime = file_path.stat().st_mtime
+            remote_mtime = file["updated_at"]
+
+            remote_dt = datetime.fromisoformat(remote_mtime.replace("Z", "+00:00"))
+            remote_ts = remote_dt.timestamp()
+
+            if local_mtime > remote_ts:
+                upload_file(file_path, file_path)
+            else:
+                file_path.parent.mkdir(parents=True, exist_ok=True)
+                download_file(file_path, file["path"])
+
+    # local
+    only_local_files = local_files - remote_files
+
+    if len(only_local_files) != 0:
+        for file in track(only_local_files, description="Uploading..."):
+            upload_file(file, file)

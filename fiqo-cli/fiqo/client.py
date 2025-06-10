@@ -6,7 +6,7 @@ import requests
 from pathlib import Path
 from rich.progress import track
 from dotenv import load_dotenv
-from datetime import datetime, timezone
+from datetime import datetime
 
 load_dotenv()
 

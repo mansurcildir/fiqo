@@ -41,6 +41,9 @@ public class File {
   @Column(name = "PATH", nullable = false)
   private String path;
 
+  @Column(name = "DIGEST", nullable = false)
+  private String digest;
+
   @Column(name = "DELETED", nullable = false)
   private boolean deleted;
 

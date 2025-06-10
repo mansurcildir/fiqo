@@ -1,9 +1,12 @@
-import requests
-from pathlib import Path
 import os
 import jwt
 import time
+import hashlib
+import requests
+from pathlib import Path
+from rich.progress import track
 from dotenv import load_dotenv
+from datetime import datetime
 
 load_dotenv()
 
@@ -153,7 +156,7 @@ def push(target: str, resource: str):
 
     elif resource_path.is_dir():
         for root, dirs, files in os.walk(resource):
-            for file in files:
+            for file in track(files, description="Uploading..."):
                 full_path = Path(root) / file
                 relative_path = full_path.relative_to(resource_path.parent)
                 dest_path = target_path / relative_path.as_posix()
@@ -192,7 +195,7 @@ def pull(target: str, resource: str):
     resource_path = Path(resource)
     resource_name = resource_path.name
 
-    for file in files:
+    for file in track(files, description="Downloading..."):
         file_path: str = file["path"]
         suffix = file_path.partition(str(resource_path))[2].lstrip("/\\")
         relative = (
@@ -220,3 +223,51 @@ def remove(path: str, recursive: bool):
         raise Exception(f"⚠️  {res.status_code} {res.json()["message"]} ")
 
     print(f"\n✅ Removed successfully")
+
+
+def file_hash(path: Path):
+    hash_fn = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_fn.update(chunk)
+    return hash_fn.hexdigest()
+
+
+def sync_file(path: str):
+
+    local_files = set(str(f) for f in Path(path).rglob("*") if f.is_file())
+    remote_files = set([])
+    files = list(path)
+
+    # remote
+    for file in track(files, description="Synchronizing..."):
+        file_path = Path("/".join(file["path"].split("/")[1:]))
+        remote_files.add(str(file_path))
+
+        if not file_path.exists():
+            file_path.parent.mkdir(parents=True, exist_ok=True)
+            download_file(file_path, file["path"])
+
+        local_hash = file_hash(file_path)
+
+        remote_hash = file["digest"].split("sha256:")[1]
+
+        if local_hash != remote_hash:
+            local_mtime = file_path.stat().st_mtime
+            remote_mtime = file["updated_at"]
+
+            remote_dt = datetime.fromisoformat(remote_mtime.replace("Z", "+00:00"))
+            remote_ts = remote_dt.timestamp()
+
+            if local_mtime > remote_ts:
+                upload_file(file_path, file_path)
+            else:
+                file_path.parent.mkdir(parents=True, exist_ok=True)
+                download_file(file_path, file["path"])
+
+    # local
+    only_local_files = local_files - remote_files
+
+    if len(only_local_files) != 0:
+        for file in track(only_local_files, description="Uploading..."):
+            upload_file(file, file)

@@ -11,7 +11,8 @@ dependencies = [
     "questionary",
     "requests",
     "pyjwt",
-    "python-dotenv"
+    "python-dotenv",
+    "rich"
 ]
 
 [project.scripts]

@@ -81,7 +81,7 @@ def remove(
         False,
         "--recursive",
         "-r",
-        help="Remove directories and their contents recursively",
+        help="Remove file or directory",
     ),
 ):
     try:
@@ -92,7 +92,7 @@ def remove(
 
 
 @app.command()
-def ls(path: str = typer.Argument(".", help="Path to list")):
+def ls(path: str = typer.Argument("./")):
     try:
         result = client.list(path)
         for file in result:
@@ -105,14 +105,21 @@ def ls(path: str = typer.Argument(".", help="Path to list")):
 def select(target: str, resource: str):
     files = client.list(resource)
 
-    file = questionary.select(
-        f"Select a file to download from {resource}", choices=files
-    ).ask()
+    file = questionary.select(f"Select a file for downloading", choices=files).ask()
 
     if file:
         client.pull(target, resource + "/" + file)
     else:
-        print("ℹ️  No selection made.")
+        print("⚠️  No selection made.")
+
+
+@app.command()
+def sync(path: str):
+    try:
+        client.sync_file(path)
+    except Exception as e:
+        print(f"{e}")
+        raise typer.Exit(code=1)
 
 
 if __name__ == "__main__":

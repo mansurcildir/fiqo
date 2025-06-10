@@ -9,7 +9,7 @@ public interface StorageStrategy {
 
   byte[] download(@NotNull String path) throws Exception;
 
-  void remove(final @NotNull String path, final boolean recursive) throws Exception;
+  void remove(@NotNull String path, boolean recursive) throws Exception;
 
   List<FileInfo> list(@NotNull String path) throws Exception;
 }

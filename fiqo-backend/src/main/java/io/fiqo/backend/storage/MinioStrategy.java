@@ -62,14 +62,14 @@ public class MinioStrategy implements StorageStrategy {
       return;
     }
 
-    List<DeleteObject> objs =
+    final List<DeleteObject> objs =
         this.list(path).stream().map(file -> new DeleteObject(file.getPath())).toList();
 
-    Iterable<Result<DeleteError>> results =
+    final Iterable<Result<DeleteError>> results =
         this.minioClient.removeObjects(
             RemoveObjectsArgs.builder().bucket(this.bucket).objects(objs).build());
 
-    for (Result<DeleteError> result : results) {
+    for (final Result<DeleteError> result : results) {
       result.get();
     }
   }
@@ -79,19 +79,30 @@ public class MinioStrategy implements StorageStrategy {
     final List<FileInfo> files = new ArrayList<>();
 
     try {
-      this.minioClient.statObject(
-          StatObjectArgs.builder().bucket(this.bucket).object(path).build());
-
-      files.add(
-          FileInfo.builder()
-              .name(FilenameUtils.getName(path))
-              .path(path)
-              .extension(FilenameUtils.getExtension(path))
-              .build());
-
-      return files;
+      return this.listFile(path, files);
     } catch (final Exception ignored) {
     }
+
+    return this.listFiles(path, files);
+  }
+
+  private List<FileInfo> listFile(final @NotNull String path, final @NotNull List<FileInfo> files)
+      throws Exception {
+
+    this.minioClient.statObject(StatObjectArgs.builder().bucket(this.bucket).object(path).build());
+
+    files.add(
+        FileInfo.builder()
+            .name(FilenameUtils.getName(path))
+            .path(path)
+            .extension(FilenameUtils.getExtension(path))
+            .build());
+
+    return files;
+  }
+
+  private List<FileInfo> listFiles(final @NotNull String path, final @NotNull List<FileInfo> files)
+      throws Exception {
 
     final Iterable<Result<Item>> results =
         this.minioClient.listObjects(
@@ -101,8 +112,8 @@ public class MinioStrategy implements StorageStrategy {
                 .recursive(true)
                 .build());
 
-    for (final Result<Item> result : results) {
-      final String filePath = result.get().objectName();
+    for (final Result<Item> item : results) {
+      final String filePath = item.get().objectName();
       final String filename = filePath.substring(path.length() + 1);
       files.add(
           FileInfo.builder()
@@ -111,7 +122,6 @@ public class MinioStrategy implements StorageStrategy {
               .extension(FilenameUtils.getExtension(filePath))
               .build());
     }
-
     return files;
   }
 }

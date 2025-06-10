@@ -3,7 +3,6 @@ package io.fiqo.backend.service;
 import io.fiqo.backend.data.dto.file.FileInfo;
 import io.fiqo.backend.data.entity.File;
 import io.fiqo.backend.data.entity.User;
-import io.fiqo.backend.exception.DuplicateItemException;
 import io.fiqo.backend.exception.ItemNotFoundException;
 import io.fiqo.backend.mapper.FileConverter;
 import io.fiqo.backend.repository.FileRepository;
@@ -11,10 +10,13 @@ import io.fiqo.backend.repository.UserRepository;
 import io.fiqo.backend.storage.StorageStrategy;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FilenameUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @RequiredArgsConstructor
 public class StorageService {
+
+  private static final String SHA_256 = "SHA-256";
+  private static final String SHA_256_PREF = "sha256";
 
   private final @NotNull StorageStrategy storageStrategy;
   private final @NotNull FileRepository fileRepository;
@@ -37,7 +42,13 @@ public class StorageService {
       throws Exception {
 
     final String path = userUuid + "/" + relativePath;
-    this.storageStrategy.upload(path, inputStream.readAllBytes());
+
+    byte[] fileBytes = inputStream.readAllBytes();
+    final MessageDigest digest = MessageDigest.getInstance(SHA_256);
+    byte[] hashBytes = digest.digest(fileBytes);
+    final String hashHex = Hex.encodeHexString(hashBytes);
+
+    this.storageStrategy.upload(path, fileBytes);
 
     final User user =
         this.userRepository
@@ -47,21 +58,27 @@ public class StorageService {
     final Optional<File> opt =
         this.fileRepository.findByPathAndUserUuidAndDeletedFalse(path, user.getUuid());
 
-    if (opt.isPresent()) {
-      throw new DuplicateItemException("duplicateItem");
+    File file;
+
+    if (opt.isEmpty()) {
+      final String name = Path.of(relativePath).getFileName().toString();
+      final String extension = FilenameUtils.getExtension(relativePath);
+
+      file =
+          File.builder()
+              .uuid(UUID.randomUUID())
+              .name(name)
+              .extension(extension)
+              .path(path)
+              .digest(SHA_256_PREF + ":" + hashHex)
+              .user(user)
+              .build();
+
+    } else {
+      file = opt.get();
+      file.setDigest(SHA_256_PREF + ":" + hashHex);
+      file.setUpdatedAt(Instant.now());
     }
-
-    final String name = Path.of(relativePath).getFileName().toString();
-    final String extension = FilenameUtils.getExtension(relativePath);
-
-    final File file =
-        File.builder()
-            .uuid(UUID.randomUUID())
-            .name(name)
-            .extension(extension)
-            .path(path)
-            .user(user)
-            .build();
 
     this.fileRepository.save(file);
   }

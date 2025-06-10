@@ -32,7 +32,7 @@
     <jjwt.version>0.12.6</jjwt.version>
     <minio.version>8.5.17</minio.version>
     <!-- Plugin Versions -->
-    <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
+    <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
     <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
     <spotbugs-maven-plugin.version>4.8.6.6</spotbugs-maven-plugin.version>
     <fmt-maven-plugin.version>2.25</fmt-maven-plugin.version>

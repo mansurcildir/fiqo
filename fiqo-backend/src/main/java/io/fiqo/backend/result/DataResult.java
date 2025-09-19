@@ -8,14 +8,15 @@ import org.jetbrains.annotations.NotNull;
 @Setter
 public class DataResult<T> extends Result {
 
-  private T data;
+  private final @NotNull T data;
 
   public DataResult(
       final boolean success,
       final int status,
+      final @NotNull String messageId,
       final @NotNull String message,
       final @NotNull T data) {
-    super(success, status, message);
+    super(success, status, messageId, message);
     this.data = data;
   }
 }

@@ -1,6 +1,6 @@
 package io.fiqo.backend.storage;
 
-import io.fiqo.backend.data.dto.file.FileInfo;
+import io.fiqo.backend.file.dto.FileInfo;
 import io.minio.GetObjectArgs;
 import io.minio.ListObjectsArgs;
 import io.minio.MinioClient;
@@ -23,13 +23,13 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
 @Component
-public class MinioStrategy implements StorageStrategy {
+public class S3 implements StorageStrategy {
   private final @NotNull MinioClient minioClient;
 
   @Value("${storage.minio.bucket}")
   private String bucket;
 
-  public MinioStrategy(final @NotNull MinioClient minioClient) {
+  public S3(final @NotNull MinioClient minioClient) {
     this.minioClient = minioClient;
   }
 
@@ -54,14 +54,14 @@ public class MinioStrategy implements StorageStrategy {
   }
 
   @Override
-  public void remove(final @NotNull String path, final boolean recursive) throws Exception {
+  public void removeFile(final @NotNull String path) throws Exception {
 
-    if (!recursive) {
-      this.minioClient.removeObject(
-          RemoveObjectArgs.builder().bucket(this.bucket).object(path).build());
-      return;
-    }
+    this.minioClient.removeObject(
+        RemoveObjectArgs.builder().bucket(this.bucket).object(path).build());
+  }
 
+  @Override
+  public void removeFiles(final @NotNull String path) throws Exception {
     final List<DeleteObject> objs =
         this.list(path).stream().map(file -> new DeleteObject(file.getPath())).toList();
 
@@ -86,8 +86,8 @@ public class MinioStrategy implements StorageStrategy {
     return this.listFiles(path, files);
   }
 
-  private List<FileInfo> listFile(final @NotNull String path, final @NotNull List<FileInfo> files)
-      throws Exception {
+  private @NotNull List<FileInfo> listFile(
+      final @NotNull String path, final @NotNull List<FileInfo> files) throws Exception {
 
     this.minioClient.statObject(StatObjectArgs.builder().bucket(this.bucket).object(path).build());
 
@@ -101,8 +101,8 @@ public class MinioStrategy implements StorageStrategy {
     return files;
   }
 
-  private List<FileInfo> listFiles(final @NotNull String path, final @NotNull List<FileInfo> files)
-      throws Exception {
+  private @NotNull List<FileInfo> listFiles(
+      final @NotNull String path, final @NotNull List<FileInfo> files) throws Exception {
 
     final Iterable<Result<Item>> results =
         this.minioClient.listObjects(

@@ -22,6 +22,12 @@ storage:
       access-key: ${MINIO_ACCESS_KEY:admin}
       secret-key: ${MINIO_SECRET_KEY:admin123}
 
+jwt:
+  access-exp-min: 5
+  refresh-exp-min: 30
+  access-key: 561744090F30C5564F793305AB783BC96545E88EE42A7ED0CED578C72CE132A3
+  refresh-key: 42DCCF1E0B06EF601CF9DCDA0ED3877F4F0DB32FAE243DC5F0C681DB09AFB454
+
 spring:
   datasource:
     url: ${fiqo-db.url}
@@ -32,17 +38,12 @@ spring:
   jpa:
     show-sql: false
     open-in-view: false
-    generate-ddl: false
     hibernate:
-      ddl-auto: none
-      naming:
-        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+      ddl-auto: validate
     properties:
       hibernate:
-        globally_quoted_identifiers: true
+      format_sql: true
+    database: postgresql
 
   flyway:
-    baseline-on-migrate: true
-    baseline-description: "init"
-    baseline-version: 0
     enabled: true

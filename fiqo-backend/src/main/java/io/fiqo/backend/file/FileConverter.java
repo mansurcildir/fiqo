@@ -1,7 +1,6 @@
-package io.fiqo.backend.mapper;
+package io.fiqo.backend.file;
 
-import io.fiqo.backend.data.dto.file.FileInfo;
-import io.fiqo.backend.data.entity.File;
+import io.fiqo.backend.file.dto.FileInfo;
 import org.jetbrains.annotations.NotNull;
 import org.mapstruct.Mapper;
 

@@ -7,7 +7,11 @@ import org.jetbrains.annotations.NotNull;
 @Getter
 @Setter
 public class ErrorDataResult<T> extends DataResult<T> {
-  public ErrorDataResult(final int status, final @NotNull String message, final @NotNull T data) {
-    super(false, status, message, data);
+  public ErrorDataResult(
+      final int status,
+      final @NotNull String messageId,
+      final @NotNull String message,
+      final @NotNull T data) {
+    super(false, status, messageId, message, data);
   }
 }

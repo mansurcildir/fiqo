@@ -1,4 +1,4 @@
-package io.fiqo.backend.data.dto.user;
+package io.fiqo.backend.user.dto;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;

@@ -1,15 +1,13 @@
-package io.fiqo.backend.controller;
+package io.fiqo.backend.auth;
 
 import static io.fiqo.backend.util.Constant.REFRESH_TOKEN;
 
-import io.fiqo.backend.data.dto.user.AuthResponse;
-import io.fiqo.backend.data.dto.user.UserDetails;
-import io.fiqo.backend.data.dto.user.UserInfo;
-import io.fiqo.backend.data.dto.user.UserLogin;
-import io.fiqo.backend.data.dto.user.UserRegister;
 import io.fiqo.backend.result.ResponseFactory;
 import io.fiqo.backend.result.Result;
-import io.fiqo.backend.service.AuthService;
+import io.fiqo.backend.user.dto.AuthResponse;
+import io.fiqo.backend.user.dto.UserDetails;
+import io.fiqo.backend.user.dto.UserLogin;
+import io.fiqo.backend.user.dto.UserRegister;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -32,19 +30,23 @@ public class AuthController {
   private final @NotNull ResponseFactory responseFactory;
 
   @PostMapping("/login")
-  public ResponseEntity<AuthResponse> login(@Valid @RequestBody final UserLogin loginRequest) {
-    return ResponseEntity.status(HttpStatus.OK).body(this.authService.login(loginRequest));
+  public @NotNull ResponseEntity<Result> login(
+      @Valid @RequestBody final @NotNull UserLogin loginRequest) {
+    final AuthResponse authResponse = this.authService.login(loginRequest);
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(this.responseFactory.success(HttpStatus.OK.value(), "loggedIn", authResponse));
   }
 
   @PostMapping("/register")
-  public ResponseEntity<AuthResponse> register(
+  public @NotNull ResponseEntity<Result> register(
       @Valid @RequestBody final @NotNull UserRegister userRegister) {
     final AuthResponse authResponse = this.authService.register(userRegister);
-    return ResponseEntity.status(HttpStatus.CREATED).body(authResponse);
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(this.responseFactory.success(HttpStatus.CREATED.value(), "registered", authResponse));
   }
 
   @GetMapping("/logout")
-  public ResponseEntity<Result> logout(final @NotNull Authentication authentication) {
+  public @NotNull ResponseEntity<Result> logout(final @NotNull Authentication authentication) {
     final UserDetails userDetails = (UserDetails) authentication.getPrincipal();
     this.authService.logout(userDetails.userUuid());
     return ResponseEntity.status(HttpStatus.OK)
@@ -52,15 +54,10 @@ public class AuthController {
   }
 
   @GetMapping("/refresh")
-  public ResponseEntity<AuthResponse> refresh(
+  public @NotNull ResponseEntity<Result> refresh(
       @RequestHeader(REFRESH_TOKEN) final @NotNull String header) {
-    return ResponseEntity.status(HttpStatus.OK).body(this.authService.refresh(header));
-  }
-
-  @GetMapping("/profile")
-  public ResponseEntity<UserInfo> profile(final @NotNull Authentication authentication) {
-    final UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+    final AuthResponse authResponse = this.authService.refresh(header);
     return ResponseEntity.status(HttpStatus.OK)
-        .body(this.authService.getUserInfo(userDetails.userUuid()));
+        .body(this.responseFactory.success(HttpStatus.OK.value(), "refreshed", authResponse));
   }
 }

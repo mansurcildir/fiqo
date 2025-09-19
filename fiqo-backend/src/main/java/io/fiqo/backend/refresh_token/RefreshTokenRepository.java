@@ -1,6 +1,5 @@
-package io.fiqo.backend.repository;
+package io.fiqo.backend.refresh_token;
 
-import io.fiqo.backend.data.entity.RefreshToken;
 import java.util.Optional;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;

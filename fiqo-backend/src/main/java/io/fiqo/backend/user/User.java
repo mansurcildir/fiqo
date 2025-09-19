@@ -1,16 +1,14 @@
-package io.fiqo.backend.data.entity;
+package io.fiqo.backend.user;
 
-import jakarta.persistence.CascadeType;
+import io.fiqo.backend.user.role.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.HashSet;
@@ -21,53 +19,53 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.UpdateTimestamp;
 
 @Entity
-@Table(name = "USER")
+@Table(name = "\"user\"")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@SQLRestriction("deleted = false")
 public class User {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "ID", nullable = false)
+  @Column(name = "id", nullable = false)
   private long id;
 
-  @Column(name = "UUID", unique = true, nullable = false, updatable = false)
+  @Column(name = "uuid", unique = true, nullable = false, updatable = false)
   private UUID uuid;
 
-  @Column(name = "USERNAME", unique = true, nullable = false)
+  @Column(name = "username", unique = true, nullable = false)
   private String username;
 
-  @Column(name = "PASSWORD")
+  @Column(name = "password")
   private String password;
 
-  @Column(name = "EMAIL", nullable = false)
+  @Column(name = "email", unique = true, nullable = false)
   private String email;
 
-  @Column(name = "DELETED", nullable = false)
+  @Column(name = "deleted", nullable = false)
   private boolean deleted;
 
-  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-  private Set<RefreshToken> refreshTokens;
-
-  @ManyToMany(fetch = FetchType.EAGER)
+  @Builder.Default
+  @ManyToMany
   @JoinTable(
-      name = "USER_ROLE",
-      joinColumns = @JoinColumn(name = "USER_ID"),
-      inverseJoinColumns = @JoinColumn(name = "ROLE_ID"))
+      name = "user_role",
+      joinColumns = @JoinColumn(name = "user_id"),
+      inverseJoinColumns = @JoinColumn(name = "role_id"))
   private Set<Role> roles = new HashSet<>();
 
-  @Column(name = "CREATED_AT", nullable = false, updatable = false)
+  @Column(name = "created_at", nullable = false, updatable = false)
   @CreationTimestamp
   private Instant createdAt;
 
-  @Column(name = "UPDATED_AT", nullable = false)
+  @Column(name = "updated_at", nullable = false)
   @UpdateTimestamp
   private Instant updatedAt;
 
-  @Column(name = "DELETED_AT")
+  @Column(name = "deleted_at")
   private Instant deletedAt;
 }

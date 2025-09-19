@@ -4,7 +4,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class ItemNotFoundException extends RuntimeException {
 
-  private static final String DEFAULT_MESSAGE = "Item not found";
+  private static final @NotNull String DEFAULT_MESSAGE = "Item not found";
 
   public ItemNotFoundException() {
     super(DEFAULT_MESSAGE);

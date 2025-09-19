@@ -23,7 +23,7 @@ public class GlobalExceptionHandler {
   private final @NotNull ResponseFactory responseFactory;
 
   @ExceptionHandler(Exception.class)
-  public @NotNull ResponseEntity<Object> handleException(final @NotNull Exception ex) {
+  public @NotNull ResponseEntity<Result> handleException(final @NotNull Exception ex) {
     log.error(ex.getMessage());
 
     final Result result =
@@ -32,7 +32,7 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
-  public @NotNull ResponseEntity<Object> handleValidations(
+  public @NotNull ResponseEntity<Result> handleValidations(
       final @NotNull MethodArgumentNotValidException ex) {
     log.info(ex.getMessage());
 
@@ -48,16 +48,17 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler(ItemNotFoundException.class)
-  public @NotNull ResponseEntity<Object> handleItemNotFoundException(
+  public @NotNull ResponseEntity<Result> handleItemNotFoundException(
       final @NotNull ItemNotFoundException ex) {
     log.info(ex.getMessage());
 
-    final Result result = this.responseFactory.error(HttpStatus.NOT_FOUND.value(), ex.getMessage());
+    final Result result =
+        this.responseFactory.error(HttpStatus.NO_CONTENT.value(), ex.getMessage());
     return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
   }
 
   @ExceptionHandler(BadCredentialsException.class)
-  public @NotNull ResponseEntity<Object> handleBadCredentialsException(
+  public @NotNull ResponseEntity<Result> handleBadCredentialsException(
       final @NotNull BadCredentialsException ex) {
     log.info(ex.getMessage());
 
@@ -67,7 +68,7 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler(UnauthorizedException.class)
-  public @NotNull ResponseEntity<Object> handleUnauthorizedException(
+  public @NotNull ResponseEntity<Result> handleUnauthorizedException(
       final @NotNull UnauthorizedException ex) {
     log.info(ex.getMessage());
 
@@ -76,12 +77,36 @@ public class GlobalExceptionHandler {
     return new ResponseEntity<>(result, HttpStatus.UNAUTHORIZED);
   }
 
-  @ExceptionHandler(DuplicateItemException.class)
-  public @NotNull ResponseEntity<Object> handleUnauthorizedException(
-      final @NotNull DuplicateItemException ex) {
+  @ExceptionHandler(BadRequestException.class)
+  public @NotNull ResponseEntity<Result> handleBadRequestException(
+      final @NotNull BadRequestException ex) {
     log.info(ex.getMessage());
+    final Result result =
+        this.responseFactory.error(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
+    return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
+  }
 
-    final Result result = this.responseFactory.error(HttpStatus.CONFLICT.value(), ex.getMessage());
-    return new ResponseEntity<>(result, HttpStatus.CONFLICT);
+  @ExceptionHandler(ForbiddenException.class)
+  public @NotNull ResponseEntity<Result> handleForbiddenException(
+      final @NotNull ForbiddenException ex) {
+    log.info(ex.getMessage());
+    final Result result = this.responseFactory.error(HttpStatus.FORBIDDEN.value(), ex.getMessage());
+    return new ResponseEntity<>(result, HttpStatus.FORBIDDEN);
+  }
+
+  @ExceptionHandler(StripeIsDisabledException.class)
+  public @NotNull ResponseEntity<Result> handleStripeIsDisabledException(
+      final @NotNull StripeIsDisabledException ex) {
+    log.info(ex.getMessage());
+    final Result result = this.responseFactory.error(HttpStatus.FORBIDDEN.value(), ex.getMessage());
+    return new ResponseEntity<>(result, HttpStatus.FORBIDDEN);
+  }
+
+  @ExceptionHandler(SubscriptionLimitExceed.class)
+  public @NotNull ResponseEntity<Result> handleSubscriptionLimitExceedException(
+      final @NotNull SubscriptionLimitExceed ex) {
+    log.info(ex.getMessage());
+    final Result result = this.responseFactory.error(HttpStatus.FORBIDDEN.value(), ex.getMessage());
+    return new ResponseEntity<>(result, HttpStatus.FORBIDDEN);
   }
 }

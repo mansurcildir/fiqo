@@ -1,4 +1,4 @@
-package io.fiqo.backend.data.entity;
+package io.fiqo.backend.user.role;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

@@ -1,77 +1,77 @@
 -- User table
-CREATE TABLE "USER" (
-    "ID"            BIGSERIAL    NOT NULL,
-    "UUID"          UUID         NOT NULL,
-    "USERNAME"      VARCHAR(255) NOT NULL,
-    "PASSWORD"      VARCHAR(255),
-    "EMAIL"         VARCHAR(255) NOT NULL,
-    "DELETED"       BOOLEAN      NOT NULL,
-    "CREATED_AT"    TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-    "UPDATED_AT"    TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-    "DELETED_AT"    TIMESTAMP WITHOUT TIME ZONE,
-    CONSTRAINT "CH_USER" CHECK (("ID" > 0)),
-    CONSTRAINT "PK_USER" PRIMARY KEY ("ID"),
-    CONSTRAINT "UQ_USER__UUID" UNIQUE ("UUID"),
-    CONSTRAINT "UQ_USER__USERNAME" UNIQUE ("USERNAME")
+CREATE TABLE "user" (
+    id                   BIGSERIAL                   NOT NULL,
+    uuid                 UUID                        NOT NULL,
+    username             VARCHAR(255)                NOT NULL,
+    password             VARCHAR(255),
+    email                VARCHAR(255)                NOT NULL,
+    deleted              BOOLEAN DEFAULT FALSE       NOT NULL,
+    created_at           TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    updated_at           TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    deleted_at           TIMESTAMP WITHOUT TIME ZONE,
+    CONSTRAINT ch_user CHECK (id > 0),
+    CONSTRAINT pk_user PRIMARY KEY (id),
+    CONSTRAINT uq_user_uuid UNIQUE (uuid)
 );
 
--- Role table
-CREATE TABLE "ROLE" (
-    "ID"   BIGSERIAL    NOT NULL,
-    "NAME" VARCHAR(255) NOT NULL,
-    CONSTRAINT "CH_ROLE" CHECK (("ID" > 0)),
-    CONSTRAINT "PK_ROLE" PRIMARY KEY ("ID"),
-    CONSTRAINT "UQ_ROLE__NAME" UNIQUE ("NAME")
+CREATE UNIQUE INDEX ux_user_email
+ON "user" (email)
+WHERE deleted = false;
+
+-- role table
+CREATE TABLE role (
+    id   BIGSERIAL    NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    CONSTRAINT ch_role CHECK (id > 0),
+    CONSTRAINT pk_role PRIMARY KEY (id),
+    CONSTRAINT uq_role_name UNIQUE (name)
 );
 
--- User-Roles relationship table
-CREATE TABLE "USER_ROLE" (
-    "USER_ID" BIGINT NOT NULL,
-    "ROLE_ID" BIGINT NOT NULL,
-CONSTRAINT "PK_USER_ROLE" PRIMARY KEY ("USER_ID", "ROLE_ID"),
-    CONSTRAINT "FK_USER_ROLE__USER_ID" FOREIGN KEY ("USER_ID") REFERENCES "USER" ("ID") ON DELETE CASCADE,
-    CONSTRAINT "FK_USER_ROLE__ROLE_ID" FOREIGN KEY ("ROLE_ID") REFERENCES "ROLE" ("ID") ON DELETE CASCADE
+-- user_role relationship table
+CREATE TABLE user_role (
+    user_id BIGINT NOT NULL,
+    role_id BIGINT NOT NULL,
+    CONSTRAINT pk_user_role PRIMARY KEY (user_id, role_id),
+    CONSTRAINT fk_user_role_user_id FOREIGN KEY (user_id) REFERENCES "user" (id) ON DELETE CASCADE,
+    CONSTRAINT fk_user_role_role_id FOREIGN KEY (role_id) REFERENCES role (id) ON DELETE CASCADE
 );
 
-INSERT INTO "ROLE" ("NAME")
+-- insert default roles
+INSERT INTO role (name)
 VALUES
-('ADMIN'),
-('USER');
+  ('ADMIN'),
+  ('USER');
 
--- Refresh token table
-CREATE TABLE "REFRESH_TOKEN" (
-    "ID"         BIGSERIAL    NOT NULL,
-    "UUID"       UUID         NOT NULL,
-    "TOKEN"      TEXT         NOT NULL,
-    "USER_ID"    BIGINT       NOT NULL,
-    "CREATED_AT" TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-    "UPDATED_AT" TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-    CONSTRAINT "CH_REFRESH_TOKEN" CHECK (("ID" > 0)),
-    CONSTRAINT "PK_REFRESH_TOKEN" PRIMARY KEY ("ID"),
-    CONSTRAINT "UQ_REFRESH_TOKEN__UUID" UNIQUE ("UUID"),
-    CONSTRAINT "UQ_REFRESH_TOKEN__TOKEN" UNIQUE ("TOKEN"),
-    CONSTRAINT "FK_REFRESH_TOKEN__TOKEN_ID" FOREIGN KEY ("USER_ID") REFERENCES "USER" ("ID") ON DELETE CASCADE
+-- refresh_token table
+CREATE TABLE refresh_token (
+    id         BIGSERIAL                   NOT NULL,
+    uuid       UUID                        NOT NULL,
+    token      TEXT                        NOT NULL,
+    user_id    BIGINT                      NOT NULL,
+    created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    updated_at TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    CONSTRAINT ch_refresh_token CHECK (id > 0),
+    CONSTRAINT pk_refresh_token PRIMARY KEY (id),
+    CONSTRAINT uq_refresh_token_uuid UNIQUE (uuid),
+    CONSTRAINT uq_refresh_token_token UNIQUE (token),
+    CONSTRAINT fk_refresh_token_user_id FOREIGN KEY (user_id) REFERENCES "user" (id) ON DELETE CASCADE
 );
 
--- File table
-CREATE TABLE "FILE" (
-    "ID"         BIGSERIAL    NOT NULL,
-    "UUID"       UUID         NOT NULL,
-    "NAME"       VARCHAR(255) NOT NULL,
-    "EXTENSION"  VARCHAR(255) NOT NULL,
-    "PATH"       VARCHAR(255) NOT NULL,
-    "DIGEST"     VARCHAR(255) NOT NULL,
-    "USER_ID"    BIGINT       NOT NULL,
-    "DELETED"    BOOLEAN      NOT NULL,
-    "CREATED_AT" TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-    "UPDATED_AT" TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-    "DELETED_AT" TIMESTAMP WITHOUT TIME ZONE,
-    CONSTRAINT "CH_FILE" CHECK (("ID" > 0)),
-    CONSTRAINT "PK_FILE" PRIMARY KEY ("ID"),
-    CONSTRAINT "UQ_FILE__UUID" UNIQUE ("UUID"),
-    CONSTRAINT "FK_FILE__USER_ID" FOREIGN KEY ("USER_ID") REFERENCES "USER" ("ID") ON DELETE CASCADE
+-- file table
+CREATE TABLE file (
+    id         BIGSERIAL    NOT NULL,
+    uuid      UUID         NOT NULL,
+    name       VARCHAR(255) NOT NULL,
+    extension  VARCHAR(255) NOT NULL,
+    path      VARCHAR(255) NOT NULL,
+    digest     VARCHAR(255) NOT NULL,
+    user_id   BIGINT       NOT NULL,
+    deleted    BOOLEAN      NOT NULL,
+    created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    updated_at TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    deleted_at TIMESTAMP WITHOUT TIME ZONE,
+    CONSTRAINT ch_fie CHECK (id > 0),
+    CONSTRAINT pk_file PRIMARY KEY (id),
+    CONSTRAINT uq_file__uuid UNIQUE (uuid),
+    CONSTRAINT fk_file__user_id FOREIGN KEY (user_id) REFERENCES "user" (id) ON DELETE CASCADE
 );
-
-CREATE UNIQUE INDEX "UX_FILE__PATH"
-ON "FILE" ("PATH")
-WHERE "DELETED" = false;

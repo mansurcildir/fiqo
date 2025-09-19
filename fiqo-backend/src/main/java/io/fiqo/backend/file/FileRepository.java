@@ -1,6 +1,5 @@
-package io.fiqo.backend.repository;
+package io.fiqo.backend.file;
 
-import io.fiqo.backend.data.entity.File;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;

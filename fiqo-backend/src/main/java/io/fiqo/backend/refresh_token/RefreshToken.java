@@ -1,5 +1,6 @@
-package io.fiqo.backend.data.entity;
+package io.fiqo.backend.refresh_token;
 
+import io.fiqo.backend.user.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -18,7 +19,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 @Entity
-@Table(name = "REFRESH_TOKEN")
+@Table(name = "refresh_token")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -26,24 +27,24 @@ import org.hibernate.annotations.UpdateTimestamp;
 public class RefreshToken {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "ID", nullable = false)
+  @Column(name = "id", nullable = false)
   private long id;
 
-  @Column(name = "UUID", unique = true, nullable = false, updatable = false)
+  @Column(name = "uuid", unique = true, nullable = false, updatable = false)
   private UUID uuid;
 
-  @Column(name = "TOKEN", unique = true, nullable = false)
+  @Column(name = "token", unique = true, nullable = false)
   private String token;
 
   @ManyToOne
-  @JoinColumn(name = "USER_ID")
+  @JoinColumn(name = "user_id")
   private User user;
 
-  @Column(name = "CREATED_AT", nullable = false, updatable = false)
+  @Column(name = "created_at", nullable = false, updatable = false)
   @CreationTimestamp
   private Instant createdAt;
 
-  @Column(name = "UPDATED_AT", nullable = false)
+  @Column(name = "updated_at", nullable = false)
   @UpdateTimestamp
   private Instant updatedAt;
 }

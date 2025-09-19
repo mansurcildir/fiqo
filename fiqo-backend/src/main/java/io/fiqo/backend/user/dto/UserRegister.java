@@ -1,4 +1,4 @@
-package io.fiqo.backend.data.dto.user;
+package io.fiqo.backend.user.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
@@ -9,5 +9,4 @@ import lombok.Builder;
 public record UserRegister(
     @NotNull @NotEmpty String username,
     @NotNull @NotEmpty String password,
-    @NotNull @NotEmpty @Email String email,
-    String picture) {}
+    @NotNull @NotEmpty @Email String email) {}

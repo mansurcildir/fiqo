@@ -1,10 +1,10 @@
-package io.fiqo.backend.controller;
+package io.fiqo.backend.file;
 
-import io.fiqo.backend.data.dto.file.FileInfo;
-import io.fiqo.backend.data.dto.user.UserDetails;
+import io.fiqo.backend.file.dto.FileInfo;
 import io.fiqo.backend.result.ResponseFactory;
 import io.fiqo.backend.result.Result;
 import io.fiqo.backend.service.StorageService;
+import io.fiqo.backend.user.dto.UserDetails;
 import jakarta.servlet.http.HttpServletRequest;
 import java.nio.file.Path;
 import java.util.List;

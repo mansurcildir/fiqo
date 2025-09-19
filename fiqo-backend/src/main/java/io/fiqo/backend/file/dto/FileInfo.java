@@ -1,12 +1,11 @@
-package io.fiqo.backend.data.dto.file;
+package io.fiqo.backend.file.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.time.Instant;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
-
-import java.time.Instant;
 
 @Getter
 @Setter

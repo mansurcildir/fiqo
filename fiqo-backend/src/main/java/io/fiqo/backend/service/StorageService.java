@@ -1,13 +1,13 @@
 package io.fiqo.backend.service;
 
-import io.fiqo.backend.data.dto.file.FileInfo;
-import io.fiqo.backend.data.entity.File;
-import io.fiqo.backend.data.entity.User;
 import io.fiqo.backend.exception.ItemNotFoundException;
-import io.fiqo.backend.mapper.FileConverter;
-import io.fiqo.backend.repository.FileRepository;
-import io.fiqo.backend.repository.UserRepository;
+import io.fiqo.backend.file.File;
+import io.fiqo.backend.file.FileConverter;
+import io.fiqo.backend.file.FileRepository;
+import io.fiqo.backend.file.dto.FileInfo;
 import io.fiqo.backend.storage.StorageStrategy;
+import io.fiqo.backend.user.User;
+import io.fiqo.backend.user.UserRepository;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.security.MessageDigest;
@@ -43,22 +43,22 @@ public class StorageService {
 
     final String path = userUuid + "/" + relativePath;
 
-    byte[] fileBytes = inputStream.readAllBytes();
+    final byte[] fileBytes = inputStream.readAllBytes();
     final MessageDigest digest = MessageDigest.getInstance(SHA_256);
-    byte[] hashBytes = digest.digest(fileBytes);
+    final byte[] hashBytes = digest.digest(fileBytes);
     final String hashHex = Hex.encodeHexString(hashBytes);
 
     this.storageStrategy.upload(path, fileBytes);
 
     final User user =
         this.userRepository
-            .findByUuidAndDeletedFalse(userUuid)
+            .findByUuid(userUuid)
             .orElseThrow(() -> new ItemNotFoundException("userNotFound"));
 
     final Optional<File> opt =
         this.fileRepository.findByPathAndUserUuidAndDeletedFalse(path, user.getUuid());
 
-    File file;
+    final File file;
 
     if (opt.isEmpty()) {
       final String name = Path.of(relativePath).getFileName().toString();
@@ -98,12 +98,14 @@ public class StorageService {
       throws Exception {
 
     final String path = userUuid + "/" + relativePath;
-    this.storageStrategy.remove(path, recursive);
 
     if (recursive) {
+      this.storageStrategy.removeFile(path);
       this.fileRepository.deleteAllByPathStartingWithAndUserUuidAndDeletedFalse(path, userUuid);
       return;
     }
+
+    this.storageStrategy.removeFiles(path);
     this.fileRepository.deleteByPathAndUserUuidAndDeletedFalse(path, userUuid);
   }
 

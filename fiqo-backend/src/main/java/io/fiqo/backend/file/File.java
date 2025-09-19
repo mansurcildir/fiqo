@@ -1,5 +1,6 @@
-package io.fiqo.backend.data.entity;
+package io.fiqo.backend.file;
 
+import io.fiqo.backend.user.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -15,50 +16,52 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.UpdateTimestamp;
 
 @Entity
-@Table(name = "FILE")
+@Table(name = "file")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@SQLRestriction("deleted = false")
 public class File {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "ID", nullable = false)
+  @Column(name = "id", nullable = false)
   private long id;
 
-  @Column(name = "UUID", unique = true, nullable = false, updatable = false)
+  @Column(name = "uuid", unique = true, nullable = false, updatable = false)
   private UUID uuid;
 
-  @Column(name = "NAME", nullable = false)
+  @Column(name = "name", nullable = false)
   private String name;
 
-  @Column(name = "EXTENSION", nullable = false)
+  @Column(name = "extension", nullable = false)
   private String extension;
 
-  @Column(name = "PATH", nullable = false)
+  @Column(name = "path", nullable = false)
   private String path;
 
-  @Column(name = "DIGEST", nullable = false)
+  @Column(name = "digest", nullable = false)
   private String digest;
 
-  @Column(name = "DELETED", nullable = false)
+  @Column(name = "deleted", nullable = false)
   private boolean deleted;
 
   @ManyToOne
-  @JoinColumn(name = "USER_ID")
+  @JoinColumn(name = "user_id")
   private User user;
 
-  @Column(name = "CREATED_AT", nullable = false, updatable = false)
+  @Column(name = "created_at", nullable = false, updatable = false)
   @CreationTimestamp
   private Instant createdAt;
 
-  @Column(name = "UPDATED_AT", nullable = false)
+  @Column(name = "updated_at", nullable = false)
   @UpdateTimestamp
   private Instant updatedAt;
 
-  @Column(name = "DELETED_AT")
+  @Column(name = "deleted_at")
   private Instant deletedAt;
 }

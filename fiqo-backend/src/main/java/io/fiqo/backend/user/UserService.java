@@ -1,10 +1,7 @@
-package io.fiqo.backend.service;
+package io.fiqo.backend.user;
 
-import io.fiqo.backend.data.dto.user.UserInfo;
-import io.fiqo.backend.data.entity.User;
 import io.fiqo.backend.exception.ItemNotFoundException;
-import io.fiqo.backend.mapper.UserConverter;
-import io.fiqo.backend.repository.UserRepository;
+import io.fiqo.backend.user.dto.UserInfo;
 import jakarta.transaction.Transactional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +20,7 @@ public class UserService {
   public @NotNull UserInfo getUserInfo(final @NotNull UUID userUuid) {
     final User user =
         this.userRepository
-            .findByUuidAndDeletedFalse(userUuid)
+            .findByUuid(userUuid)
             .orElseThrow(() -> new ItemNotFoundException("userNotFound"));
 
     return this.userConverter.toUserInfo(user);

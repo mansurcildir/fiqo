@@ -13,7 +13,6 @@ load_dotenv()
 BASE_URL = os.getenv("BASE_URL", "http://localhost:8080")
 FIQORC_PATH = Path.home() / ".fiqorc"
 
-
 def login(username: str, password: str):
     url = f"{BASE_URL}/v1/auth/login"
     payload = {"username": username, "password": password}
@@ -22,11 +21,11 @@ def login(username: str, password: str):
     if res.status_code != 200:
         raise Exception(f"⚠️  {res.status_code} {res.json()["message"]}")
 
-    access_token = res.json().get("access_token")
+    access_token = res.json().get("data").get("access_token")
     if not access_token:
         raise Exception("⚠️  No token received")
 
-    refresh_token = res.json().get("refresh_token")
+    refresh_token = res.json().get("data").get("refresh_token")
     if not refresh_token:
         raise Exception("⚠️  No token received")
 

@@ -5,7 +5,6 @@ from fiqo import client
 
 app = typer.Typer()
 
-
 @app.command()
 def login(
     username=typer.Option(None, "--username", "-u", help="Username"),

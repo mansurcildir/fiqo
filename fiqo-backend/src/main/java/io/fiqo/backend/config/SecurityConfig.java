@@ -13,10 +13,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
 import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -26,7 +22,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-
   private final @NotNull JwtUtil jwtUtil;
   private final @NotNull ResponseFactory responseFactory;
 
@@ -49,16 +44,11 @@ public class SecurityConfig {
     return http.build();
   }
 
-  @Bean
-  public PasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder();
-  }
-
   private void cors(final @NotNull CorsConfigurer<HttpSecurity> corsConfigurer) {
     corsConfigurer.configurationSource(this.configurationSource());
   }
 
-  private CorsConfigurationSource configurationSource() {
+  private @NotNull CorsConfigurationSource configurationSource() {
     final var configuration = new CorsConfiguration();
     configuration.setAllowedOriginPatterns(List.of("*"));
     configuration.setAllowCredentials(true);
@@ -82,17 +72,9 @@ public class SecurityConfig {
       final @NotNull AuthorizeHttpRequestsConfigurer<HttpSecurity>
                   .AuthorizationManagerRequestMatcherRegistry
               auth) {
-    auth.requestMatchers(
-            "/v1/auth/register", "/v1/auth/login", "/v1/auth/login/google", "/v1/auth/refresh")
-        .permitAll()
-        .requestMatchers("/ws/**")
+    auth.requestMatchers("/v1/auth/register", "/v1/auth/login", "/v1/auth/refresh")
         .permitAll()
         .anyRequest()
         .authenticated();
-  }
-
-  @Bean
-  public UserDetailsService userDetailsService() {
-    return new InMemoryUserDetailsManager();
   }
 }

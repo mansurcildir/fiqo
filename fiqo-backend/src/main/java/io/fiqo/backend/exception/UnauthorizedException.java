@@ -4,7 +4,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class UnauthorizedException extends RuntimeException {
 
-  private static final String DEFAULT_MESSAGE = "Unauthorized exception";
+  private static final @NotNull String DEFAULT_MESSAGE = "Unauthorized exception";
 
   public UnauthorizedException() {
     super(DEFAULT_MESSAGE);

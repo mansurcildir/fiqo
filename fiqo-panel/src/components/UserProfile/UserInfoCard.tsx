@@ -5,7 +5,7 @@ import Input from '../form/input/InputField';
 import Label from '../form/Label';
 
 interface Props {
-  email: string
+  email: string;
 }
 
 export default function UserInfoCard({ email }: Props) {

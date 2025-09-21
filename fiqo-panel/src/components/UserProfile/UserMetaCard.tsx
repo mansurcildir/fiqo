@@ -5,7 +5,7 @@ import Input from '../form/input/InputField';
 import Label from '../form/Label';
 
 interface Props {
-  username: string
+  username: string;
 }
 
 export default function UserMetaCard({ username }: Props) {

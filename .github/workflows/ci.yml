@@ -48,3 +48,30 @@ jobs:
 
       - name: Build and Verify
         run: mvn -B -ntp verify
+
+  fiqo-panel:
+    needs:
+      - check
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./fiqo-panel
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Lint Check
+        run: pnpm run lint
+
+      - name: Build
+        run: pnpm run build

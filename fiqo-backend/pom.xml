@@ -33,7 +33,7 @@
     <testcontainers.version>1.20.6</testcontainers.version>
     <minio.version>8.5.17</minio.version>
     <!-- Plugins -->
-    <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
+    <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
     <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
     <spotbugs-maven-plugin.version>4.9.6.0</spotbugs-maven-plugin.version>
     <fmt-maven-plugin.version>2.27</fmt-maven-plugin.version>

@@ -1,9 +1,10 @@
-package io.fiqo.backend.util;
+package io.fiqo.backend.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fiqo.backend.result.ResponseFactory;
 import io.fiqo.backend.result.Result;
 import io.fiqo.backend.user.dto.UserDetails;
+import io.fiqo.backend.util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -11,6 +12,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -22,17 +24,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @Slf4j
+@RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-  private final @NotNull JwtUtil jwtUtil;
-  private final @NotNull ResponseFactory responseFactory;
   private static final @NotNull String ROLE_PREFIX = "ROLE_";
   private static final int BEARER_INDEX = 7;
 
-  public JwtAuthenticationFilter(
-      final @NotNull JwtUtil jwtUtil, final @NotNull ResponseFactory responseFactory) {
-    this.jwtUtil = jwtUtil;
-    this.responseFactory = responseFactory;
-  }
+  private final @NotNull JwtUtil jwtUtil;
+  private final @NotNull ResponseFactory responseFactory;
 
   @Override
   protected void doFilterInternal(

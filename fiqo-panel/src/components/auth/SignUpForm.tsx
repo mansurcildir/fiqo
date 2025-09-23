@@ -5,7 +5,6 @@ import Label from '../form/Label';
 import Input from '../form/input/InputField';
 import Checkbox from '../form/input/Checkbox';
 import { authAPI } from '../../service/auth-service';
-import { setTokens } from '../../service/storage-manager';
 
 export default function SignUpForm() {
   const navigate = useNavigate();
@@ -26,8 +25,7 @@ export default function SignUpForm() {
 
     authAPI
       .register(form)
-      .then((res) => {
-        setTokens(res.data.access_token, res.data.refresh_token);
+      .then(() => {
         navigate('/signin');
       })
       .catch((err) => console.error(err));

@@ -14,8 +14,8 @@ fiqo-db:
   url: jdbc:postgresql://${fiqo-db.host}:${fiqo-db.port}/${fiqo-db.db}
 
 storage:
-  strategy: {STORAGE_STRATEGY:minio}
-  minio:
+  strategy: ${STORAGE_STRATEGY:s3}
+  s3:
     base-url: ${MINIO_BASE_URL:http://localhost:9000}
     bucket: ${MINIO_BUCKET_NAME:fiqo}
     credentials:

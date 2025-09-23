@@ -1,9 +1,9 @@
-package io.fiqo.backend.config;
+package io.fiqo.backend.security;
 
 import io.fiqo.backend.result.ResponseFactory;
-import io.fiqo.backend.util.JwtAuthenticationFilter;
 import io.fiqo.backend.util.JwtUtil;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,6 +13,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
 import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -21,27 +23,28 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
-  private final @NotNull JwtUtil jwtUtil;
-  private final @NotNull ResponseFactory responseFactory;
-
-  public SecurityConfig(
-      final @NotNull JwtUtil jwtUtil, final @NotNull ResponseFactory responseFactory) {
-    this.jwtUtil = jwtUtil;
-    this.responseFactory = responseFactory;
-  }
 
   @Bean
-  public SecurityFilterChain securityFilterChain(final @NotNull HttpSecurity http)
+  public SecurityFilterChain securityFilterChain(
+      final @NotNull HttpSecurity http,
+      final @NotNull JwtUtil jwtUtil,
+      final @NotNull ResponseFactory responseFactory)
       throws Exception {
     http.csrf(AbstractHttpConfigurer::disable)
         .cors(this::cors)
         .authorizeHttpRequests(this::authorizeHttpRequests)
         .addFilterBefore(
-            new JwtAuthenticationFilter(this.jwtUtil, this.responseFactory),
+            new JwtAuthenticationFilter(jwtUtil, responseFactory),
             UsernamePasswordAuthenticationFilter.class);
 
     return http.build();
+  }
+
+  @Bean
+  public @NotNull PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
   }
 
   private void cors(final @NotNull CorsConfigurer<HttpSecurity> corsConfigurer) {

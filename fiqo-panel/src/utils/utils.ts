@@ -1,1 +1,1 @@
-export const SPRING_BASE_URL = import.meta.env.VITE_SPRING_BASE_URL;
+export const SPRING_BASE_URL = import.meta.env.VITE_SPRING_BASE_URL || 'http://localhost:8080';

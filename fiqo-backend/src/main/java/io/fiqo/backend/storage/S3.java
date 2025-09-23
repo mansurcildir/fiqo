@@ -16,22 +16,18 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
 
-@Component
+@RequiredArgsConstructor
 public class S3 implements StorageStrategy {
   private final @NotNull MinioClient minioClient;
 
-  @Value("${storage.minio.bucket}")
+  @Value("${storage.s3.bucket}")
   private String bucket;
-
-  public S3(final @NotNull MinioClient minioClient) {
-    this.minioClient = minioClient;
-  }
 
   @Override
   public void upload(final @NotNull String path, final byte[] bytes) throws Exception {

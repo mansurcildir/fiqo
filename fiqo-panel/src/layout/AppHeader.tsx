@@ -5,8 +5,15 @@ import { useSidebar } from '../context/SidebarContext';
 import { ThemeToggleButton } from '../components/common/ThemeToggleButton';
 import NotificationDropdown from '../components/header/NotificationDropdown';
 import UserDropdown from '../components/header/UserDropdown';
+import { userAPI } from '../service/user-service';
 
 const AppHeader: React.FC = () => {
+  const [userInfo, setUserInfo] = useState({
+    uuid: '',
+    username: '',
+    email: ''
+  });
+
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
 
   const { isMobileOpen, toggleSidebar, toggleMobileSidebar } = useSidebar();
@@ -24,6 +31,20 @@ const AppHeader: React.FC = () => {
   };
 
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      userAPI.getProfile().then((res) => {
+        setUserInfo({
+          uuid: res.data.uuid,
+          username: res.data.username,
+          email: res.data.email
+        });
+      });
+    };
+
+    fetchProfile();
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -72,8 +93,8 @@ const AppHeader: React.FC = () => {
           </button>
 
           <Link to="/" className="lg:hidden">
-            <img className="dark:hidden" src="./images/logo/logo.svg" alt="Logo" />
-            <img className="hidden dark:block" src="./images/logo/logo-dark.svg" alt="Logo" />
+            <img className="dark:hidden" src="./images/logo/logo.png" alt="Logo" />
+            <img className="hidden dark:block" src="./images/logo/logo.png" alt="Logo" />
           </Link>
 
           <button
@@ -118,8 +139,7 @@ const AppHeader: React.FC = () => {
                 />
 
                 <button className="absolute top-1/2 right-2.5 inline-flex -translate-y-1/2 items-center gap-0.5 rounded-lg border border-gray-200 bg-gray-50 px-[7px] py-[4.5px] text-xs -tracking-[0.2px] text-gray-500 dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-400">
-                  <span> ⌘ </span>
-                  <span> K </span>
+                  <span> Search </span>
                 </button>
               </div>
             </form>
@@ -138,7 +158,7 @@ const AppHeader: React.FC = () => {
             {/* <!-- Notification Menu Area --> */}
           </div>
           {/* <!-- User Area --> */}
-          <UserDropdown />
+          <UserDropdown userInfo={userInfo} />
         </div>
       </div>
     </header>

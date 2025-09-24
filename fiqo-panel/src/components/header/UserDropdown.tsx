@@ -3,8 +3,13 @@ import { DropdownItem } from '../ui/dropdown/DropdownItem';
 import { Dropdown } from '../ui/dropdown/Dropdown';
 import { authAPI } from '../../service/auth-service';
 import { useNavigate } from 'react-router';
+import { UserInfo } from '../../model/user/UserInfo';
 
-export default function UserDropdown() {
+interface Props {
+  userInfo: UserInfo | null;
+}
+
+export default function UserDropdown({ userInfo }: Props) {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -28,7 +33,7 @@ export default function UserDropdown() {
           <img src="/images/user/owner.jpg" alt="User" />
         </span>
 
-        <span className="text-theme-sm mr-1 block font-medium">Musharof</span>
+        <span className="text-theme-sm mr-1 block font-medium">{userInfo?.username}</span>
         <svg
           className={`stroke-gray-500 transition-transform duration-200 dark:stroke-gray-400 ${
             isOpen ? 'rotate-180' : ''
@@ -55,8 +60,8 @@ export default function UserDropdown() {
         className="shadow-theme-lg dark:bg-gray-dark absolute right-0 mt-[17px] flex w-[260px] flex-col rounded-2xl border border-gray-200 bg-white p-3 dark:border-gray-800"
       >
         <div>
-          <span className="text-theme-sm block font-medium text-gray-700 dark:text-gray-400">Musharof Chowdhury</span>
-          <span className="text-theme-xs mt-0.5 block text-gray-500 dark:text-gray-400">randomuser@pimjo.com</span>
+          <span className="text-theme-sm block font-medium text-gray-700 dark:text-gray-400">{userInfo?.username}</span>
+          <span className="text-theme-xs mt-0.5 block text-gray-500 dark:text-gray-400">{userInfo?.email}</span>
         </div>
 
         <ul className="flex flex-col gap-1 border-b border-gray-200 pt-4 pb-3 dark:border-gray-800">

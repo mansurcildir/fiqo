@@ -1,1 +1,22 @@
+import dayjs from 'dayjs';
+
 export const SPRING_BASE_URL = import.meta.env.VITE_SPRING_BASE_URL || 'http://localhost:8080';
+
+export function formatFileSize(bytes: number): string {
+  if (bytes < 0) return '0 B';
+
+  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+  let size = bytes;
+  let unitIndex = 0;
+
+  while (size >= 1024 && unitIndex < units.length - 1) {
+    size /= 1024;
+    unitIndex++;
+  }
+
+  return `${size.toFixed(1)} ${units[unitIndex]}`;
+}
+
+export function formatDate(dateStr: string, formatStr = 'DD/MM/YYYY HH:mm'): string {
+  return dayjs(dateStr).format(formatStr);
+}

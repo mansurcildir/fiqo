@@ -47,6 +47,9 @@ public class File {
   @Column(name = "digest", nullable = false)
   private String digest;
 
+  @Column(name = "size", nullable = false)
+  private long size;
+
   @Column(name = "deleted", nullable = false)
   private boolean deleted;
 

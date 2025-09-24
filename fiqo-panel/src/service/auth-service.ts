@@ -5,7 +5,7 @@ import { UserForm } from '../model/user/UserForm';
 import { SPRING_BASE_URL } from '../utils/utils';
 
 import axios from 'axios';
-import { clearTokens, getAccessToken, getAllTokens } from './storage-manager';
+import { clearTokens, getAccessToken, getAllTokens, getRefreshToken } from './storage-manager';
 import { isTokenExpired } from './token-decoder';
 
 export const authAPI = {
@@ -31,7 +31,7 @@ export const authAPI = {
   },
 
   getAccessToken: async (): Promise<DataResult<LoginRes>> => {
-    const refreshToken = localStorage.getItem('refresh-token');
+    const refreshToken = getRefreshToken();
     const response = await axios.get(`${SPRING_BASE_URL}/v1/auth/refresh`, {
       headers: {
         'Refresh-Token': refreshToken,

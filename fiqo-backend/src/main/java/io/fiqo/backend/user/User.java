@@ -47,6 +47,9 @@ public class User {
   @Column(name = "email", unique = true, nullable = false)
   private String email;
 
+  @Column(name = "total_size", nullable = false)
+  private long totalSize;
+
   @Column(name = "deleted", nullable = false)
   private boolean deleted;
 

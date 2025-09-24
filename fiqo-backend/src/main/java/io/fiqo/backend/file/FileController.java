@@ -3,7 +3,6 @@ package io.fiqo.backend.file;
 import io.fiqo.backend.file.dto.FileInfo;
 import io.fiqo.backend.result.ResponseFactory;
 import io.fiqo.backend.result.Result;
-import io.fiqo.backend.service.StorageService;
 import io.fiqo.backend.user.dto.UserDetails;
 import jakarta.servlet.http.HttpServletRequest;
 import java.nio.file.Path;
@@ -27,43 +26,37 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class FileController {
 
-  private static final String REQUEST_PARAM_PATH = "path";
-
   private final @NotNull ResponseFactory responseFactory;
-  private final @NotNull StorageService storageService;
+  private final @NotNull FileService fileService;
 
   @PutMapping
-  public ResponseEntity<Result> uploadFile(
+  public @NotNull ResponseEntity<Result> uploadFile(
       final @NotNull Authentication authentication,
-      @RequestParam(REQUEST_PARAM_PATH) final String path,
+      @RequestParam final String path,
       final @NotNull HttpServletRequest request)
       throws Exception {
 
     final UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-    this.storageService.uploadFile(userDetails.userUuid(), path, request.getInputStream());
-    return ResponseEntity.ok(
-        this.responseFactory.success(HttpStatus.OK.value(), "uploadSuccessful"));
-  }
-
-  @GetMapping("/info")
-  public ResponseEntity<Result> listFiles(
-      final @NotNull Authentication authentication,
-      @RequestParam(REQUEST_PARAM_PATH) final String path)
-      throws Exception {
-
-    final UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-    final List<FileInfo> files = this.storageService.listFiles(userDetails.userUuid(), path);
-    return ResponseEntity.ok(
-        this.responseFactory.success(HttpStatus.OK.value(), "fetchedSuccessfully", files));
+    this.fileService.uploadFile(userDetails.userUuid(), path, request.getInputStream());
+    return ResponseEntity.ok(this.responseFactory.success(HttpStatus.OK.value(), "fileUploaded"));
   }
 
   @GetMapping
-  public ResponseEntity<byte[]> downloadFile(
-      final @NotNull Authentication authentication,
-      @RequestParam(REQUEST_PARAM_PATH) final String path)
+  public @NotNull ResponseEntity<Result> listFiles(
+      final @NotNull Authentication authentication, @RequestParam final String path) {
+
+    final UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+    final List<FileInfo> files = this.fileService.listFiles(userDetails.userUuid(), path);
+    return ResponseEntity.ok(
+        this.responseFactory.success(HttpStatus.OK.value(), "fileFetched", files));
+  }
+
+  @GetMapping("/download")
+  public @NotNull ResponseEntity<byte[]> downloadFile(
+      final @NotNull Authentication authentication, @RequestParam final String path)
       throws Exception {
     final UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-    final byte[] fileBytes = this.storageService.downloadFile(userDetails.userUuid(), path);
+    final byte[] fileBytes = this.fileService.downloadFile(userDetails.userUuid(), path);
 
     return ResponseEntity.ok()
         .contentType(MediaType.APPLICATION_OCTET_STREAM)
@@ -74,14 +67,19 @@ public class FileController {
   }
 
   @DeleteMapping
-  public ResponseEntity<Result> removeFiles(
+  public @NotNull ResponseEntity<Result> removeFile(
       final @NotNull Authentication authentication,
-      @RequestParam(REQUEST_PARAM_PATH) final String path,
-      @RequestParam("recursive") final boolean recursive)
+      @RequestParam final String path,
+      @RequestParam final boolean recursive)
       throws Exception {
+
     final UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-    this.storageService.removeFile(userDetails.userUuid(), path, recursive);
-    return ResponseEntity.ok(
-        this.responseFactory.success(HttpStatus.OK.value(), "removeSuccessful"));
+    if (recursive) {
+      this.fileService.removeFiles(userDetails.userUuid(), path);
+      return ResponseEntity.ok(this.responseFactory.success(HttpStatus.OK.value(), "filesRemoved"));
+    } else {
+      this.fileService.removeFile(userDetails.userUuid(), path);
+      return ResponseEntity.ok(this.responseFactory.success(HttpStatus.OK.value(), "fileRemoved"));
+    }
   }
 }

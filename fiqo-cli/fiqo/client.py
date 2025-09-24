@@ -115,7 +115,7 @@ def get_file(path: str):
 def list(path: str):
     token = get_auth_token()
 
-    url = f"{BASE_URL}/v1/files/info"
+    url = f"{BASE_URL}/v1/files"
     headers = {"Authorization": f"Bearer {token}"}
     params = {"path": path}
 
@@ -168,7 +168,7 @@ def push(target: str, resource: str):
 
 def download_file(target: str, resource: str):
     token = get_auth_token()
-    url = f"{BASE_URL}/v1/files?path={resource}"
+    url = f"{BASE_URL}/v1/files/download?path={resource}"
     headers = {"Authorization": f"Bearer {token}"}
 
     res = requests.get(url, headers=headers, stream=True)

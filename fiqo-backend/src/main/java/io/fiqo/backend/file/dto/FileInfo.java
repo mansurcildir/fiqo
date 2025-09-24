@@ -1,6 +1,5 @@
 package io.fiqo.backend.file.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.Instant;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,5 +14,7 @@ public class FileInfo {
   private @NotNull String path;
   private @NotNull String extension;
   private @NotNull String digest;
-  private @JsonProperty("updated_at") Instant updatedAt;
+  private long size;
+  private @NotNull Instant createdAt;
+  private @NotNull Instant updatedAt;
 }

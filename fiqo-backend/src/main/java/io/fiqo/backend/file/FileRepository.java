@@ -8,13 +8,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface FileRepository extends JpaRepository<File, Long> {
   @NotNull
-  List<File> findAllByPathStartingWithAndDeletedFalse(@NotNull String path);
+  List<File> findAllByPathStartingWith(@NotNull String path);
 
   @NotNull
-  Optional<File> findByPathAndUserUuidAndDeletedFalse(@NotNull String path, @NotNull UUID userId);
+  Optional<File> findByPathAndUserUuid(@NotNull String path, @NotNull UUID userId);
 
-  void deleteByPathAndUserUuidAndDeletedFalse(@NotNull String path, @NotNull UUID userId);
+  void deleteByPathAndUserUuid(@NotNull String path, @NotNull UUID userId);
 
-  void deleteAllByPathStartingWithAndUserUuidAndDeletedFalse(
-      @NotNull String path, @NotNull UUID userId);
+  void deleteAllByPathStartingWithAndUserUuid(@NotNull String path, @NotNull UUID userId);
 }

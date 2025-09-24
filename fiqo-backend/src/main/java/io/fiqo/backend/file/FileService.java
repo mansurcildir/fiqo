@@ -1,9 +1,6 @@
-package io.fiqo.backend.service;
+package io.fiqo.backend.file;
 
 import io.fiqo.backend.exception.ItemNotFoundException;
-import io.fiqo.backend.file.File;
-import io.fiqo.backend.file.FileConverter;
-import io.fiqo.backend.file.FileRepository;
 import io.fiqo.backend.file.dto.FileInfo;
 import io.fiqo.backend.storage.StorageStrategy;
 import io.fiqo.backend.user.User;
@@ -25,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class StorageService {
+public class FileService {
 
   private static final String SHA_256 = "SHA-256";
   private static final String SHA_256_PREF = "sha256";
@@ -43,42 +40,68 @@ public class StorageService {
 
     final String path = userUuid + "/" + relativePath;
 
-    final byte[] fileBytes = inputStream.readAllBytes();
     final MessageDigest digest = MessageDigest.getInstance(SHA_256);
+
+    final byte[] fileBytes = inputStream.readAllBytes();
     final byte[] hashBytes = digest.digest(fileBytes);
+    final long size = fileBytes.length;
     final String hashHex = Hex.encodeHexString(hashBytes);
 
     this.storageStrategy.upload(path, fileBytes);
+
+    this.createOrUpdateFile(userUuid, relativePath, hashHex, size);
+  }
+
+  private void createOrUpdateFile(
+      final @NotNull UUID userUuid,
+      final @NotNull String relativePath,
+      final @NotNull String hashHex,
+      final long size) {
+
+    final String path = userUuid + "/" + relativePath;
+    final Optional<File> file = this.fileRepository.findByPathAndUserUuid(path, userUuid);
+
+    if (file.isEmpty()) {
+      this.createFile(userUuid, relativePath, hashHex, size);
+    } else {
+      this.updateFile(file.get(), hashHex, size);
+    }
+  }
+
+  private void createFile(
+      final @NotNull UUID userUuid,
+      final @NotNull String relativePath,
+      final @NotNull String hashHex,
+      final long size) {
+    final String name = Path.of(relativePath).getFileName().toString();
+    final String extension = FilenameUtils.getExtension(relativePath);
+
+    final String path = userUuid + "/" + relativePath;
 
     final User user =
         this.userRepository
             .findByUuid(userUuid)
             .orElseThrow(() -> new ItemNotFoundException("userNotFound"));
 
-    final Optional<File> opt =
-        this.fileRepository.findByPathAndUserUuidAndDeletedFalse(path, user.getUuid());
+    final File file =
+        File.builder()
+            .uuid(UUID.randomUUID())
+            .name(name)
+            .extension(extension)
+            .path(path)
+            .digest(SHA_256_PREF + ":" + hashHex)
+            .size(size)
+            .user(user)
+            .build();
 
-    final File file;
+    this.fileRepository.save(file);
+  }
 
-    if (opt.isEmpty()) {
-      final String name = Path.of(relativePath).getFileName().toString();
-      final String extension = FilenameUtils.getExtension(relativePath);
-
-      file =
-          File.builder()
-              .uuid(UUID.randomUUID())
-              .name(name)
-              .extension(extension)
-              .path(path)
-              .digest(SHA_256_PREF + ":" + hashHex)
-              .user(user)
-              .build();
-
-    } else {
-      file = opt.get();
-      file.setDigest(SHA_256_PREF + ":" + hashHex);
-      file.setUpdatedAt(Instant.now());
-    }
+  private void updateFile(
+      final @NotNull File file, final @NotNull String hashHex, final long size) {
+    file.setDigest(SHA_256_PREF + ":" + hashHex);
+    file.setSize(size);
+    file.setUpdatedAt(Instant.now());
 
     this.fileRepository.save(file);
   }
@@ -87,33 +110,35 @@ public class StorageService {
       throws Exception {
     final File file =
         this.fileRepository
-            .findByPathAndUserUuidAndDeletedFalse(path, userUuid)
+            .findByPathAndUserUuid(path, userUuid)
             .orElseThrow(() -> new ItemNotFoundException("fileNotFound"));
 
     return this.storageStrategy.download(file.getPath());
   }
 
-  public void removeFile(
-      final @NotNull UUID userUuid, final @NotNull String relativePath, final boolean recursive)
+  public void removeFile(final @NotNull UUID userUuid, final @NotNull String relativePath)
       throws Exception {
 
     final String path = userUuid + "/" + relativePath;
 
-    if (recursive) {
-      this.storageStrategy.removeFile(path);
-      this.fileRepository.deleteAllByPathStartingWithAndUserUuidAndDeletedFalse(path, userUuid);
-      return;
-    }
+    this.storageStrategy.removeFile(path);
+    this.fileRepository.deleteAllByPathStartingWithAndUserUuid(path, userUuid);
+  }
+
+  public void removeFiles(final @NotNull UUID userUuid, final @NotNull String relativePath)
+      throws Exception {
+
+    final String path = userUuid + "/" + relativePath;
 
     this.storageStrategy.removeFiles(path);
-    this.fileRepository.deleteByPathAndUserUuidAndDeletedFalse(path, userUuid);
+    this.fileRepository.deleteByPathAndUserUuid(path, userUuid);
   }
 
   public @NotNull List<FileInfo> listFiles(
       final @NotNull UUID userUuid, final @NotNull String relativePath) {
 
     final String path = userUuid + "/" + relativePath;
-    return this.fileRepository.findAllByPathStartingWithAndDeletedFalse(path).stream()
+    return this.fileRepository.findAllByPathStartingWith(path).stream()
         .map(this.fileConverter::toFileInfo)
         .toList();
   }

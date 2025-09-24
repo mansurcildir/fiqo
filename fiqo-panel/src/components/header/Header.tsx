@@ -76,8 +76,8 @@ const Header: React.FC<HeaderProps> = ({ onClick, onToggle }) => {
           </button>
 
           <Link to="/" className="lg:hidden">
-            <img className="dark:hidden" src="./images/logo/logo.svg" alt="Logo" />
-            <img className="hidden dark:block" src="./images/logo/logo-dark.svg" alt="Logo" />
+            <img className="dark:hidden" src="./images/logo/logo.png" alt="Logo" />
+            <img className="hidden dark:block" src="./images/logo/logo.png" alt="Logo" />
           </Link>
 
           <button
@@ -121,8 +121,7 @@ const Header: React.FC<HeaderProps> = ({ onClick, onToggle }) => {
                 />
 
                 <button className="absolute top-1/2 right-2.5 inline-flex -translate-y-1/2 items-center gap-0.5 rounded-lg border border-gray-200 bg-gray-50 px-[7px] py-[4.5px] text-xs -tracking-[0.2px] text-gray-500 dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-400">
-                  <span> ⌘ </span>
-                  <span> K </span>
+                  <span> Search </span>
                 </button>
               </div>
             </form>
@@ -141,7 +140,7 @@ const Header: React.FC<HeaderProps> = ({ onClick, onToggle }) => {
             {/* <!-- Notification Menu Area --> */}
           </div>
           {/* <!-- User Area --> */}
-          <UserDropdown />
+          <UserDropdown userInfo={null} />
         </div>
       </div>
     </header>

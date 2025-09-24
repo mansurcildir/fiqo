@@ -14,7 +14,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             <GridShape />
             <div className="flex max-w-xs flex-col items-center">
               <Link to="/" className="mb-4 block">
-                <img width={231} height={48} src="/images/logo/auth-logo.svg" alt="Logo" />
+                <img width={231} height={48} src="/images/logo/logo.png" alt="Logo" />
               </Link>
               <p className="text-center text-gray-400 dark:text-white/60">
                 Free and Open-Source Tailwind CSS Admin Dashboard Template

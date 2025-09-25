@@ -5,6 +5,7 @@ import io.fiqo.backend.result.ResponseFactory;
 import io.fiqo.backend.result.Result;
 import io.fiqo.backend.user.dto.UserDetails;
 import jakarta.servlet.http.HttpServletRequest;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -63,6 +64,29 @@ public class FileController {
         .header(
             HttpHeaders.CONTENT_DISPOSITION,
             "attachment; filename=\"" + Path.of(path).getFileName() + "\"")
+        .body(fileBytes);
+  }
+
+  @GetMapping("/preview/**")
+  public ResponseEntity<byte[]> previewFile(
+      final @NotNull Authentication authentication, final @NotNull HttpServletRequest request)
+      throws Exception {
+
+    final UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+    final String fullPath = request.getRequestURI().replaceFirst("/v1/files/preview/", "");
+
+    final byte[] fileBytes = this.fileService.downloadFile(userDetails.userUuid(), fullPath);
+
+    String contentType = Files.probeContentType(Path.of(fullPath));
+    if (contentType == null) {
+      contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
+    }
+
+    return ResponseEntity.ok()
+        .contentType(MediaType.parseMediaType(contentType))
+        .header(
+            HttpHeaders.CONTENT_DISPOSITION,
+            "inline; filename=\"" + Path.of(fullPath).getFileName() + "\"")
         .body(fileBytes);
   }
 

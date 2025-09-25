@@ -2,9 +2,11 @@
 
 File Quick Online (FIQO)
 
-The project consists of 2 parts;
+The project consists of 3 parts;
 
-- **Client:** fiqo-cli
+- **CLI (Command Line Interface):** fiqo-cli
+
+- **Panel** fiqo-panel
 
 - **Server:** fiqo-backend
 

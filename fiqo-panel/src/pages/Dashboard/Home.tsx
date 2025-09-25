@@ -5,6 +5,10 @@ import { FileManager } from '@cubone/react-file-manager';
 import '@cubone/react-file-manager/dist/style.css';
 import ComponentCard from '../../components/common/ComponentCard';
 import { SPRING_BASE_URL } from '../../utils/utils';
+import { UserInfo } from '../../model/user/UserInfo';
+import { userAPI } from '../../service/user-service';
+import { getAccessToken } from '../../service/storage-manager';
+import axios from 'axios';
 
 interface File {
   name: string;
@@ -15,6 +19,7 @@ interface File {
 }
 
 export default function Home() {
+  const [userInfo, setUserInfo] = useState<UserInfo>();
   const [files, setDirectories] = useState<File[]>([]);
   const [currentPath] = useState<string>('');
 
@@ -28,6 +33,16 @@ export default function Home() {
 
     fetchFiles();
   }, [currentPath]);
+
+  useEffect(() => {
+    const getProfile = async () => {
+      userAPI.getProfile().then((res) => {
+        setUserInfo(res.data);
+      });
+    };
+
+    getProfile();
+  }, []);
 
   const fetchFiles = async () => {
     fileAPI.getAllFiles(currentPath).then((res) => {
@@ -66,12 +81,47 @@ export default function Home() {
     });
   };
 
+  const downloadFile = (path: string, fileName: string) => {
+    fileAPI.downloadFile(path).then((blob) => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      a.click();
+      URL.revokeObjectURL(url);
+      fetchFiles();
+    });
+  };
+
+  const CustomPreview: React.FC<{ file: File }> = ({ file }) => {
+    const [url, setUrl] = useState<string>();
+
+    useEffect(() => {
+      const fetchPreview = async () => {
+        const res = await axios.get(`${SPRING_BASE_URL}/v1/files/preview/${userInfo?.uuid}/${file.path}`, {
+          headers: { Authorization: `Bearer ${getAccessToken()}` },
+          responseType: 'blob'
+        });
+        setUrl(URL.createObjectURL(res.data));
+      };
+      fetchPreview();
+    }, [file]);
+
+    if (!url) return <>Loading...</>;
+    return <img className="w-full" src={url} alt={file.name} />;
+  };
+
   return (
     <ComponentCard title="File Explorer">
       <FileManager
         primaryColor={'#465fff'}
         files={files}
-        filePreviewPath={`${SPRING_BASE_URL}/files/preview`}
+        filePreviewComponent={(file: File) => <CustomPreview file={file} />}
+        onDownload={(files: Array<File>) => {
+          files.forEach((file) => {
+            downloadFile(userInfo?.uuid + '/' + file.path, file.name);
+          });
+        }}
         onDelete={(files: Array<File>) => {
           files.forEach((file) => {
             deleteFile(file.path, false);

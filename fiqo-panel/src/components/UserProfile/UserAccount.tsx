@@ -141,7 +141,7 @@ export default function UserAccount() {
           <div className="border border-gray-200 dark:border-gray-800"></div>
 
           {googleAccounts.map((account) => (
-            <div className="flex items-center justify-between">
+            <div key={account.uuid} className="flex items-center justify-between">
               <span className="text-gray-800 dark:text-white/90">{account.email}</span>
               <Button onClick={() => deleteAccountByUuid(account.uuid)} className="bg-error-500 hover:bg-error-400">
                 Disconnect
@@ -178,7 +178,7 @@ export default function UserAccount() {
           <div className="border border-gray-200 dark:border-gray-800"></div>
 
           {githubAccounts.map((account) => (
-            <div className="flex items-center justify-between">
+            <div key={account.uuid} className="flex items-center justify-between">
               <span className="text-gray-800 dark:text-white/90">{account.email}</span>
               <Button onClick={() => deleteAccountByUuid(account.uuid)} className="bg-error-500 hover:bg-error-400">
                 Disconnect

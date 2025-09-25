@@ -4,11 +4,8 @@ import { FileInfo } from '../../model/file/FileInfo';
 import { FileManager } from '@cubone/react-file-manager';
 import '@cubone/react-file-manager/dist/style.css';
 import ComponentCard from '../../components/common/ComponentCard';
-import { SPRING_BASE_URL } from '../../utils/utils';
 import { UserInfo } from '../../model/user/UserInfo';
 import { userAPI } from '../../service/user-service';
-import { getAccessToken } from '../../service/storage-manager';
-import axios from 'axios';
 
 interface File {
   name: string;
@@ -98,11 +95,9 @@ export default function Home() {
 
     useEffect(() => {
       const fetchPreview = async () => {
-        const res = await axios.get(`${SPRING_BASE_URL}/v1/files/preview/${userInfo?.uuid}/${file.path}`, {
-          headers: { Authorization: `Bearer ${getAccessToken()}` },
-          responseType: 'blob'
+        fileAPI.downloadFile(`${userInfo?.uuid}/${file.path}`).then((blob) => {
+          setUrl(URL.createObjectURL(blob));
         });
-        setUrl(URL.createObjectURL(res.data));
       };
       fetchPreview();
     }, [file]);

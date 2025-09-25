@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Google Login Callback</title>
+  </head>
+  <body>
+    <script>
+      const frontendBaseUrl = window.location.origin;
+      const params = new URLSearchParams(window.location.search);
+      const sessionId = params.get('session_id');
+
+      if (sessionId) {
+        fetch(`http://localhost:8080/v1/auth/token/${sessionId}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+          .then(async (res) => {
+            if (!res.ok) {
+              const json = await res.json();
+              throw new Error(json.error || 'Google login failed');
+            }
+            return res.json();
+          })
+          .then((res) => {
+            const { access_token, refresh_token } = res.data;
+            localStorage.setItem('access-token', access_token);
+            localStorage.setItem('refresh-token', refresh_token);
+
+            window.opener.postMessage({ status: 'google-auth-success' }, frontendBaseUrl);
+          })
+          .catch((err) => {
+            window.opener.postMessage({ status: 'google-auth-error', error: err.message }, frontendBaseUrl);
+          })
+          .finally(() => window.close());
+      } else {
+        window.close();
+      }
+    </script>
+  </body>
+</html>

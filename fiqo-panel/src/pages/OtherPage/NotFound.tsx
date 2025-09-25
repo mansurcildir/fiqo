@@ -30,7 +30,7 @@ export default function NotFound() {
         </div>
         {/* <!-- Footer --> */}
         <p className="absolute bottom-6 left-1/2 -translate-x-1/2 text-center text-sm text-gray-500 dark:text-gray-400">
-          &copy; {new Date().getFullYear()} - TailAdmin
+          &copy; {new Date().getFullYear()} - FIQO
         </p>
       </div>
     </>

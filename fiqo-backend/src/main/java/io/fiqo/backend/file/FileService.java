@@ -66,6 +66,8 @@ public class FileService {
     } else {
       this.updateFile(file.get(), hashHex, size);
     }
+
+    this.userRepository.updateTotalSizeByUuid(userUuid, size);
   }
 
   private void createFile(

@@ -3,8 +3,8 @@ package io.fiqo.backend.security;
 import io.fiqo.backend.result.ResponseFactory;
 import io.fiqo.backend.util.JwtUtil;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -13,8 +13,10 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
 import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
+import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -23,18 +25,29 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
-@RequiredArgsConstructor
 public class SecurityConfig {
+
+  @Value("${fiqo.success-url}")
+  private String apiSuccessURL;
 
   @Bean
   public SecurityFilterChain securityFilterChain(
       final @NotNull HttpSecurity http,
       final @NotNull JwtUtil jwtUtil,
-      final @NotNull ResponseFactory responseFactory)
+      final @NotNull ResponseFactory responseFactory,
+      final @NotNull OAuthSuccessHandler oAuthSuccessHandler,
+      final @NotNull ClientRegistrationRepository repo)
       throws Exception {
     http.csrf(AbstractHttpConfigurer::disable)
         .cors(this::cors)
         .authorizeHttpRequests(this::authorizeHttpRequests)
+        .oauth2Login(this::oAuth2Login)
+        .oauth2Login(
+            oauth2 ->
+                oauth2
+                    .successHandler(oAuthSuccessHandler)
+                    .authorizationEndpoint(
+                        auth -> auth.authorizationRequestResolver(new AuthRequestResolver(repo))))
         .addFilterBefore(
             new JwtAuthenticationFilter(jwtUtil, responseFactory),
             UsernamePasswordAuthenticationFilter.class);
@@ -75,9 +88,20 @@ public class SecurityConfig {
       final @NotNull AuthorizeHttpRequestsConfigurer<HttpSecurity>
                   .AuthorizationManagerRequestMatcherRegistry
               auth) {
-    auth.requestMatchers("/v1/auth/register", "/v1/auth/login", "/v1/auth/refresh")
+    auth.requestMatchers(
+            "/auth/google/callback",
+            "/v1/auth/password-recovery",
+            "/v1/auth/recover-password",
+            "/v1/auth/register",
+            "/v1/auth/login",
+            "/v1/auth/refresh",
+            "/v1/auth/token/**")
         .permitAll()
         .anyRequest()
         .authenticated();
+  }
+
+  private void oAuth2Login(final @NotNull OAuth2LoginConfigurer<HttpSecurity> oauth2) {
+    oauth2.defaultSuccessUrl(this.apiSuccessURL);
   }
 }

@@ -13,6 +13,11 @@ fiqo-db:
   password: ${FIQO_DB_PASSWORD:admin123}
   url: jdbc:postgresql://${fiqo-db.host}:${fiqo-db.port}/${fiqo-db.db}
 
+fiqo:
+  backend-base-url: http://localhost:8080
+  frontend-base-url: http://localhost:5173
+  success-url: ${fiqo.frontend-base-url}/login
+
 storage:
   strategy: ${STORAGE_STRATEGY:s3}
   s3:
@@ -47,3 +52,51 @@ spring:
 
   flyway:
     enabled: true
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID:YOUR_GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET:YOUR_GOOGLE_CLIENT_SECRET}
+            scope:
+              - openid
+              - profile
+              - email
+            redirect-uri: ${fiqo.backend-base-url}/login/oauth2/code/google
+            redirect-uri-login: ${fiqo.frontend-base-url}/google-callback-login.html
+            redirect-uri-connect: ${fiqo.frontend-base-url}/google-callback-connect.html
+            authorization-grant-type: authorization_code
+          github:
+            client-id: ${GITHUB_CLIENT_ID:YOUR_GITHUB_CLIENT_ID}
+            client-secret: ${GITHUB_CLIENT_SECRET:YOUR_GITHUB_CLIENT_SECRET}
+            scope:
+              - read:user
+              - user:email
+            redirect-uri: ${fiqo.backend-base-url}/login/oauth2/code/github
+            redirect-uri-login: ${fiqo.frontend-base-url}/github-callback-login.html
+            redirect-uri-connect: ${fiqo.frontend-base-url}/github-callback-connect.html
+            authorization-grant-type: authorization_code
+        provider:
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://openidconnect.googleapis.com/v1/userinfo
+          github:
+            authorization-uri: https://github.com/login/oauth/authorize
+            token-uri: https://github.com/login/oauth/access_token
+            user-info-uri: https://api.github.com/user
+            email-uri: https://api.github.com/user/emails
+
+  mail:
+    host: YOUR_SMTP_HOST
+    port: 587
+    username: YOUR_SENDER_EMAIL
+    password: YOUR_SENDER_EMAIL_PASSWORD
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true

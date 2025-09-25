@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Google Connect Callback</title>
+  </head>
+  <body>
+    <script>
+      const frontendBaseUrl = window.location.origin;
+      const params = new URLSearchParams(window.location.search);
+      const error = params.get('error');
+
+      if (error) {
+        window.opener.postMessage({ status: 'google-auth-error', error: error }, frontendBaseUrl);
+      } else {
+        window.opener.postMessage({ status: 'google-auth-success' }, frontendBaseUrl);
+      }
+      window.close();
+    </script>
+  </body>
+</html>

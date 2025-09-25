@@ -93,20 +93,4 @@ public class GlobalExceptionHandler {
     final Result result = this.responseFactory.error(HttpStatus.FORBIDDEN.value(), ex.getMessage());
     return new ResponseEntity<>(result, HttpStatus.FORBIDDEN);
   }
-
-  @ExceptionHandler(StripeIsDisabledException.class)
-  public @NotNull ResponseEntity<Result> handleStripeIsDisabledException(
-      final @NotNull StripeIsDisabledException ex) {
-    log.info(ex.getMessage());
-    final Result result = this.responseFactory.error(HttpStatus.FORBIDDEN.value(), ex.getMessage());
-    return new ResponseEntity<>(result, HttpStatus.FORBIDDEN);
-  }
-
-  @ExceptionHandler(SubscriptionLimitExceed.class)
-  public @NotNull ResponseEntity<Result> handleSubscriptionLimitExceedException(
-      final @NotNull SubscriptionLimitExceed ex) {
-    log.info(ex.getMessage());
-    final Result result = this.responseFactory.error(HttpStatus.FORBIDDEN.value(), ex.getMessage());
-    return new ResponseEntity<>(result, HttpStatus.FORBIDDEN);
-  }
 }

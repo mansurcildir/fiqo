@@ -4,10 +4,15 @@ import java.util.Optional;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 
 public interface UserRepository extends JpaRepository<User, Long> {
   @NotNull
   Optional<User> findByUsername(@NotNull String username);
+
+  @NotNull
+  Optional<User> findByEmail(@NotNull String email);
 
   @NotNull
   Optional<User> findByUuid(@NotNull UUID uuid);
@@ -15,4 +20,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
   boolean existsByUsername(@NotNull String username);
 
   boolean existsByEmail(@NotNull String email);
+
+  @Modifying
+  @Query("update User u set u.totalSize = u.totalSize + :totalSize where u.uuid = :uuid")
+  void updateTotalSizeByUuid(@NotNull UUID uuid, long totalSize);
 }

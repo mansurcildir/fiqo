@@ -37,20 +37,77 @@ export default function SignInForm() {
       })
       .catch((err) => console.error(err));
   };
+
+  const loginGoogle = () => {
+    const width = 500;
+    const height = 600;
+    const left = window.screenX + (window.outerWidth - width) / 2;
+    const top = window.screenY + (window.outerHeight - height) / 2;
+
+    const frontendBaseUrl = window.location.origin;
+
+    window.open(
+      'http://localhost:8080/oauth2/authorization/google?action=login',
+      'googleLogin',
+      `width=${width},height=${height},left=${left},top=${top},resizable,scrollbars`
+    );
+
+    const messageHandler = (event: MessageEvent) => {
+      if (event.origin !== frontendBaseUrl) {
+        return;
+      }
+
+      if (event.data.status === 'google-auth-success') {
+        window.removeEventListener('message', messageHandler);
+        window.location.href = frontendBaseUrl;
+      } else if (event.data.status === 'google-auth-error') {
+        window.removeEventListener('message', messageHandler);
+      }
+    };
+
+    window.addEventListener('message', messageHandler);
+  };
+
+  const loginGithub = () => {
+    const width = 500;
+    const height = 600;
+    const left = window.screenX + (window.outerWidth - width) / 2;
+    const top = window.screenY + (window.outerHeight - height) / 2;
+
+    const frontendBaseUrl = window.location.origin;
+
+    window.open(
+      'http://localhost:8080/oauth2/authorization/github?action=login',
+      'githubLogin',
+      `width=${width},height=${height},left=${left},top=${top},resizable,scrollbars`
+    );
+
+    const messageHandler = (event: MessageEvent) => {
+      if (event.origin !== frontendBaseUrl) {
+        return;
+      }
+
+      if (event.data.status === 'github-auth-success') {
+        window.removeEventListener('message', messageHandler);
+        window.location.href = frontendBaseUrl;
+      } else if (event.data.status === 'github-auth-error') {
+        window.removeEventListener('message', messageHandler);
+      }
+    };
+
+    window.addEventListener('message', messageHandler);
+  };
+
   return (
     <div className="flex flex-1 flex-col">
       <div className="mx-auto w-full max-w-md pt-10">
-        {loggedIn ? (
-          <Link
-            to="/"
-            className="inline-flex items-center text-sm text-gray-500 transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-          >
-            <ChevronLeftIcon className="size-5" />
-            Back to dashboard
-          </Link>
-        ) : (
-          ''
-        )}
+        <Link
+          to="/"
+          className={`inline-flex items-center text-sm text-gray-500 transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 ${!loggedIn ? 'invisible' : ''}`}
+        >
+          <ChevronLeftIcon className="size-5" />
+          Back to dashboard
+        </Link>
       </div>
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center">
         <div>
@@ -62,7 +119,10 @@ export default function SignInForm() {
           </div>
           <div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5">
-              <button className="inline-flex items-center justify-center gap-3 rounded-lg bg-gray-100 px-7 py-3 text-sm font-normal text-gray-700 transition-colors hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10">
+              <button
+                onClick={() => loginGoogle()}
+                className="inline-flex items-center justify-center gap-3 rounded-lg bg-gray-100 px-7 py-3 text-sm font-normal text-gray-700 transition-colors hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10"
+              >
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path
                     d="M18.7511 10.1944C18.7511 9.47495 18.6915 8.94995 18.5626 8.40552H10.1797V11.6527H15.1003C15.0011 12.4597 14.4654 13.675 13.2749 14.4916L13.2582 14.6003L15.9087 16.6126L16.0924 16.6305C17.7788 15.1041 18.7511 12.8583 18.7511 10.1944Z"
@@ -83,7 +143,10 @@ export default function SignInForm() {
                 </svg>
                 Sign in with Google
               </button>
-              <button className="inline-flex items-center justify-center gap-3 rounded-lg bg-gray-100 px-7 py-3 text-sm font-normal text-gray-700 transition-colors hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10">
+              <button
+                onClick={() => loginGithub()}
+                className="inline-flex items-center justify-center gap-3 rounded-lg bg-gray-100 px-7 py-3 text-sm font-normal text-gray-700 transition-colors hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10"
+              >
                 <svg
                   width="21"
                   height="20"

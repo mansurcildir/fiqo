@@ -6,9 +6,10 @@ import Label from '../form/Label';
 
 interface Props {
   username: string;
+  email: string;
 }
 
-export default function UserMetaCard({ username }: Props) {
+export default function UserMetaCard({ username, email }: Props) {
   const { isOpen, openModal, closeModal } = useModal();
   const handleSave = () => {
     // Handle save logic here
@@ -28,9 +29,7 @@ export default function UserMetaCard({ username }: Props) {
                 {username}
               </h4>
               <div className="flex flex-col items-center gap-1 text-center xl:flex-row xl:gap-3 xl:text-left">
-                <p className="text-sm text-gray-500 dark:text-gray-400">Team Manager</p>
-                <div className="hidden h-3.5 w-px bg-gray-300 xl:block dark:bg-gray-700"></div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Arizona, United States</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{email}</p>
               </div>
             </div>
             <div className="order-2 flex grow items-center gap-2 xl:order-3 xl:justify-end">

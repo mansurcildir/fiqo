@@ -1,17 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { Link } from 'react-router';
-import { useSidebar } from '../context/SidebarContext';
 import { ThemeToggleButton } from '../components/common/ThemeToggleButton';
 import NotificationDropdown from '../components/header/NotificationDropdown';
 import UserDropdown from '../components/header/UserDropdown';
 import { userAPI } from '../service/user-service';
+import { useSidebar } from '../utils/utils';
 
 const AppHeader: React.FC = () => {
   const [userInfo, setUserInfo] = useState({
     uuid: '',
     username: '',
-    email: ''
+    email: '',
+    totalSize: 0
   });
 
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
@@ -38,7 +39,8 @@ const AppHeader: React.FC = () => {
         setUserInfo({
           uuid: res.data.uuid,
           username: res.data.username,
-          email: res.data.email
+          email: res.data.email,
+          totalSize: res.data.totalSize
         });
       });
     };
@@ -93,8 +95,8 @@ const AppHeader: React.FC = () => {
           </button>
 
           <Link to="/" className="lg:hidden">
-            <img className="dark:hidden" src="./images/logo/logo.png" alt="Logo" />
-            <img className="hidden dark:block" src="./images/logo/logo.png" alt="Logo" />
+            <img className="dark:hidden" src="./images/logo/logo.png" alt="Logo" width={150} height={40} />
+            <img className="hidden dark:block" src="./images/logo/logo.png" alt="Logo" width={150} height={40} />
           </Link>
 
           <button

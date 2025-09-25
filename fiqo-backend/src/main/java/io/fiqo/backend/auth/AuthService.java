@@ -1,5 +1,7 @@
 package io.fiqo.backend.auth;
 
+import io.fiqo.backend.auth.dto.RecoverPasswordForm;
+import io.fiqo.backend.auth.dto.ResetPasswordForm;
 import io.fiqo.backend.exception.ItemNotFoundException;
 import io.fiqo.backend.exception.UnauthorizedException;
 import io.fiqo.backend.refresh_token.RefreshToken;
@@ -14,6 +16,8 @@ import io.fiqo.backend.user.dto.UserRegister;
 import io.fiqo.backend.user.role.Role;
 import io.fiqo.backend.user.role.RoleRepository;
 import io.fiqo.backend.util.JwtUtil;
+import io.fiqo.backend.verification.Verification;
+import io.fiqo.backend.verification.VerificationRepository;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +26,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.cache.annotation.CacheEvict;
@@ -34,10 +39,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @RequiredArgsConstructor
 public class AuthService {
+  private static final @NotNull String SUBSCRIPTION_PLAN_FREE = "Free";
+
   private final @NotNull JwtUtil jwtUtil;
   private final @NotNull PasswordEncoder passwordEncoder;
   private final @NotNull UserRepository userRepository;
   private final @NotNull RoleRepository roleRepository;
+  private final @NotNull VerificationRepository verificationRepository;
   private final @NotNull RefreshTokenRepository refreshTokenRepository;
   private final @NotNull UserService userService;
 
@@ -121,6 +129,44 @@ public class AuthService {
 
     this.setRoles(user);
     return this.userRepository.save(user);
+  }
+
+  public void recoverPassword(final @NotNull RecoverPasswordForm recoverPasswordForm) {
+    final String hashedCode = DigestUtils.sha256Hex(recoverPasswordForm.code());
+    final Verification verification =
+        this.verificationRepository
+            .findByCode(hashedCode)
+            .orElseThrow(() -> new ItemNotFoundException("verificationNotFound"));
+
+    this.confirmPassword(recoverPasswordForm.password(), recoverPasswordForm.confirmPassword());
+
+    final User user = verification.getUser();
+    final String encodedPassword = this.passwordEncoder.encode(recoverPasswordForm.password());
+    user.setPassword(encodedPassword);
+
+    this.userRepository.save(user);
+  }
+
+  public void resetPassword(
+      final @NotNull ResetPasswordForm resetPasswordForm, final @NotNull UUID userUuid) {
+    this.confirmPassword(resetPasswordForm.password(), resetPasswordForm.confirmPassword());
+
+    final User user =
+        this.userRepository
+            .findByUuid(userUuid)
+            .orElseThrow(() -> new ItemNotFoundException("userNotFound"));
+
+    final String encodedPassword = this.passwordEncoder.encode(resetPasswordForm.password());
+    user.setPassword(encodedPassword);
+
+    this.userRepository.save(user);
+  }
+
+  private void confirmPassword(
+      final @NotNull String password, final @NotNull String confirmPassword) {
+    if (!password.equals(confirmPassword)) {
+      throw new UnauthorizedException("passwordsDoNotMatch");
+    }
   }
 
   private void setRoles(final @NotNull User user) {

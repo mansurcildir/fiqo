@@ -44,6 +44,45 @@ services:
     networks:
       - fiqo
 
+  #-------Node Exporter service-------
+  fiqo-node-exporter:
+    container_name: fiqo-node-exporter
+    image: prom/node-exporter:latest
+    ports:
+      - "9100:9100"
+    networks:
+      - fiqo
+    restart: unless-stopped
+
+  #-------Prometheus service-------
+  fiqo-prometheus:
+    container_name: fiqo-prometheus
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    depends_on:
+      - fiqo-node-exporter
+    networks:
+      - fiqo
+    restart: unless-stopped
+
+  #-------Grafana service-------
+  fiqo-grafana:
+    container_name: fiqo-grafana
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin123}
+    depends_on:
+      - fiqo-prometheus
+    networks:
+      - fiqo
+    restart: unless-stopped
+
 volumes:
   fiqo-minio-data:
 

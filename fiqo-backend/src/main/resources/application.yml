@@ -5,6 +5,15 @@ logging:
   level:
     root: WARN
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    prometheus:
+      enabled: true
+
 fiqo-db:
   host: ${FIQO_DB_HOST:localhost}
   port: ${FIQO_DB_PORT:5432}
@@ -14,9 +23,9 @@ fiqo-db:
   url: jdbc:postgresql://${fiqo-db.host}:${fiqo-db.port}/${fiqo-db.db}
 
 fiqo:
-  backend-base-url: http://localhost:8080
-  frontend-base-url: http://localhost:5173
-  success-url: ${fiqo.frontend-base-url}/login
+  backend-base-url: ${BACKEND_BASE_URL:http://localhost:8080}
+  panel-base-url: ${PANEL_BASE_URL:http://localhost:5173}
+  success-url: ${fiqo.panel-base-url}/login
 
 storage:
   strategy: ${STORAGE_STRATEGY:s3}
@@ -28,10 +37,10 @@ storage:
       secret-key: ${MINIO_SECRET_KEY:admin123}
 
 jwt:
-  access-exp-min: 5
-  refresh-exp-min: 30
-  access-key: 561744090F30C5564F793305AB783BC96545E88EE42A7ED0CED578C72CE132A3
-  refresh-key: 42DCCF1E0B06EF601CF9DCDA0ED3877F4F0DB32FAE243DC5F0C681DB09AFB454
+  access-exp-min: ${ACCESS_TOKEN_EXP_MIN:5}
+  refresh-exp-min: ${REFRESH_TOKEN_EXP_MIN:30}
+  access-key: ${ACCESS_TOKEN_KEY:561744090F30C5564F793305AB783BC96545E88EE42A7ED0CED578C72CE132A3}
+  refresh-key: ${REFRESH_TOKEN_KEY:561744090F30C5564F793305AB783BC96545E88EE42A7ED0CED578C72CE132A3}
 
 spring:
   datasource:
@@ -65,8 +74,8 @@ spring:
               - profile
               - email
             redirect-uri: ${fiqo.backend-base-url}/login/oauth2/code/google
-            redirect-uri-login: ${fiqo.frontend-base-url}/google-callback-login.html
-            redirect-uri-connect: ${fiqo.frontend-base-url}/google-callback-connect.html
+            redirect-uri-login: ${fiqo.panel-base-url}/google-callback-login.html
+            redirect-uri-connect: ${fiqo.panel-base-url}/google-callback-connect.html
             authorization-grant-type: authorization_code
           github:
             client-id: ${GITHUB_CLIENT_ID:YOUR_GITHUB_CLIENT_ID}
@@ -75,8 +84,8 @@ spring:
               - read:user
               - user:email
             redirect-uri: ${fiqo.backend-base-url}/login/oauth2/code/github
-            redirect-uri-login: ${fiqo.frontend-base-url}/github-callback-login.html
-            redirect-uri-connect: ${fiqo.frontend-base-url}/github-callback-connect.html
+            redirect-uri-login: ${fiqo.panel-base-url}/github-callback-login.html
+            redirect-uri-connect: ${fiqo.panel-base-url}/github-callback-connect.html
             authorization-grant-type: authorization_code
         provider:
           google:
@@ -90,10 +99,10 @@ spring:
             email-uri: https://api.github.com/user/emails
 
   mail:
-    host: YOUR_SMTP_HOST
-    port: 587
-    username: YOUR_SENDER_EMAIL
-    password: YOUR_SENDER_EMAIL_PASSWORD
+    host: ${SMTP_HOST:YOUR_SMTP_HOST}
+    port: ${SMTP_PORT:587}
+    username: ${SENDER_EMAIL:YOUR_SENDER_EMAIL}
+    password: ${SENDER_EMAIL_PASSWORD:YOUR_SENDER_EMAIL_PASSWORD}
     properties:
       mail:
         smtp:

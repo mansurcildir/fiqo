@@ -95,7 +95,8 @@ public class SecurityConfig {
             "/v1/auth/register",
             "/v1/auth/login",
             "/v1/auth/refresh",
-            "/v1/auth/token/**")
+            "/v1/auth/token/**",
+            "/actuator/**")
         .permitAll()
         .anyRequest()
         .authenticated();

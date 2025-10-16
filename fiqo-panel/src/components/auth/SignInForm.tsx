@@ -6,6 +6,7 @@ import Input from '../form/input/InputField';
 import Checkbox from '../form/input/Checkbox';
 import { authAPI } from '../../service/auth-service';
 import { setTokens } from '../../service/storage-manager';
+import { SPRING_BASE_URL } from '../../utils/utils';
 
 export default function SignInForm() {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -47,7 +48,7 @@ export default function SignInForm() {
     const frontendBaseUrl = window.location.origin;
 
     window.open(
-      'http://localhost:8080/oauth2/authorization/google?action=login',
+      `${SPRING_BASE_URL}/oauth2/authorization/google?action=login`,
       'googleLogin',
       `width=${width},height=${height},left=${left},top=${top},resizable,scrollbars`
     );

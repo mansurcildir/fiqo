@@ -13,8 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class MailService {
 
-  @Value("${fiqo.frontend-base-url}")
-  private String frontendBaseUrl;
+  @Value("${fiqo.panel-base-url}")
+  private String panelBaseUrl;
 
   private final @NotNull JavaMailSender mailSender;
 
@@ -22,7 +22,7 @@ public class MailService {
     final SimpleMailMessage message = new SimpleMailMessage();
     message.setTo(email);
     message.setSubject("Reset Your Password");
-    message.setText(this.frontendBaseUrl + "/reset-password/" + code);
+    message.setText(this.panelBaseUrl + "/reset-password/" + code);
     this.mailSender.send(message);
   }
 }

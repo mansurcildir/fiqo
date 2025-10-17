@@ -6,10 +6,11 @@ import UserProfiles from './pages/UserProfiles';
 import AppLayout from './layout/AppLayout';
 import { ScrollToTop } from './components/common/ScrollToTop';
 import Home from './pages/Dashboard/Home';
+import { AlertProvider } from './service/alert-service';
 
 export default function App() {
   return (
-    <>
+    <AlertProvider>
       <Router>
         <ScrollToTop />
         <Routes>
@@ -29,6 +30,6 @@ export default function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
-    </>
+    </AlertProvider>
   );
 }

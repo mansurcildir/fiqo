@@ -3,19 +3,142 @@ import { Modal } from '../ui/modal';
 import Button from '../ui/button/Button';
 import Input from '../form/input/InputField';
 import Label from '../form/Label';
+import { Resolver, useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+import { userAPI } from '../../service/user-service';
+import { UserInfo } from '../../model/user/UserInfo';
+import { ProfileForm } from '../../model/user/ProfileForm';
+import { useEffect, useState } from 'react';
+import { ResetPasswordForm } from '../../model/user/ResetPasswordForm';
+import { normalizeEntries } from '../../utils/utils';
+import { authAPI } from '../../service/auth-service';
+import { useAlert } from '../../service/alert-service';
 
-interface Props {
-  username: string;
-  email: string;
-}
+const personalSchema = yup.object().shape({
+  username: yup.string().required('Username is required').min(3, 'Username should have at least 3 characters'),
+  email: yup.string().required('Email is required').email('Email should be valid format'),
 
-export default function UserMetaCard({ username, email }: Props) {
+  firstName: yup.string().nullable(),
+  lastName: yup.string().nullable(),
+  phone: yup.string().nullable(),
+  bio: yup.string().nullable(),
+  facebookUrl: yup.string().nullable().url('Facebook URL must be a valid URL'),
+  xUrl: yup.string().nullable().url('X URL must be a valid URL'),
+  linkedinUrl: yup.string().nullable().url('Linkedin URL must be a valid URL'),
+  instagramUrl: yup.string().nullable().url('Instagram URL must be a valid URL')
+});
+
+const resetPasswordSchema = yup.object().shape({
+  password: yup.string().required('Password is required').min(6, 'Password should be at least 6 character'),
+  confirmPassword: yup
+    .string()
+    .required('Confirm password is required')
+    .min(6, 'Password should be at least 6 character')
+});
+
+export default function UserMetaCard() {
   const { isOpen, openModal, closeModal } = useModal();
-  const handleSave = () => {
-    // Handle save logic here
-    console.log('Saving changes...');
-    closeModal();
+  const { showAlert } = useAlert();
+  const [userInfo, setUserInfo] = useState<UserInfo>({
+    uuid: '',
+    username: '',
+    email: '',
+    firstName: '',
+    lastName: '',
+    phone: '',
+    bio: '',
+    facebookUrl: '',
+    xUrl: '',
+    linkedinUrl: '',
+    instagramUrl: '',
+    totalFileSize: 0
+  });
+
+  const personalForm = useForm<ProfileForm>({
+    resolver: yupResolver(personalSchema) as Resolver<ProfileForm>,
+    defaultValues: {},
+    mode: 'all'
+  });
+
+  const resetPasswordForm = useForm<ResetPasswordForm>({
+    resolver: yupResolver(resetPasswordSchema) as Resolver<ResetPasswordForm>,
+    defaultValues: {},
+    mode: 'all'
+  });
+
+  const fetchProfile = async () => {
+    userAPI.getProfile().then((res) => {
+      setUserInfo(res.data);
+      personalForm.reset({
+        username: res.data.username,
+        email: res.data.email,
+        firstName: res.data.firstName,
+        lastName: res.data.lastName,
+        phone: res.data.phone,
+        bio: res.data.bio,
+        facebookUrl: res.data.facebookUrl,
+        xUrl: res.data.xUrl,
+        linkedinUrl: res.data.linkedinUrl,
+        instagramUrl: res.data.instagramUrl
+      });
+    });
   };
+
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  const updateProfile = (form: ProfileForm) => {
+    const normalizedForm = normalizeEntries(form);
+
+    userAPI
+      .updateProfile(normalizedForm)
+      .then((res) => {
+        fetchProfile();
+        showAlert(res.message, 'success', 3000);
+      })
+      .catch((err) => {
+        showAlert(err, 'error');
+      });
+  };
+
+  const resetPassword = (form: ResetPasswordForm) => {
+    const normalizedForm = normalizeEntries(form);
+
+    authAPI
+      .resetPassword(normalizedForm)
+      .then((res) => {
+        clearResetPasswordForm();
+        showAlert(res.message, 'success', 3000);
+      })
+      .catch((err) => {
+        showAlert(err, 'error');
+      });
+  };
+
+  const clearPersonalForm = () => {
+    personalForm.reset({
+      username: userInfo.username,
+      email: userInfo.email,
+      firstName: userInfo.firstName,
+      lastName: userInfo.lastName,
+      phone: userInfo.phone,
+      bio: userInfo.bio,
+      facebookUrl: userInfo.facebookUrl,
+      xUrl: userInfo.xUrl,
+      linkedinUrl: userInfo.linkedinUrl,
+      instagramUrl: userInfo.instagramUrl
+    });
+  };
+
+  const clearResetPasswordForm = () => {
+    resetPasswordForm.reset({
+      password: '',
+      confirmPassword: ''
+    });
+  };
+
   return (
     <>
       <div className="rounded-2xl border border-gray-200 p-5 lg:p-6 dark:border-gray-800">
@@ -26,15 +149,15 @@ export default function UserMetaCard({ username, email }: Props) {
             </div>
             <div className="order-3 xl:order-2">
               <h4 className="mb-2 text-center text-lg font-semibold text-gray-800 xl:text-left dark:text-white/90">
-                {username}
+                {userInfo.username}
               </h4>
               <div className="flex flex-col items-center gap-1 text-center xl:flex-row xl:gap-3 xl:text-left">
-                <p className="text-sm text-gray-500 dark:text-gray-400">{email}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{userInfo.email}</p>
               </div>
             </div>
             <div className="order-2 flex grow items-center gap-2 xl:order-3 xl:justify-end">
               <a
-                href="https://www.facebook.com/PimjoHQ"
+                href={`https://sfsdfsd.comsd`}
                 target="_blank"
                 rel="noopener"
                 className="shadow-theme-xs flex h-11 w-11 items-center justify-center gap-2 rounded-full border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
@@ -55,7 +178,7 @@ export default function UserMetaCard({ username, email }: Props) {
               </a>
 
               <a
-                href="https://x.com/PimjoHQ"
+                href={userInfo.xUrl!}
                 target="_blank"
                 rel="noopener"
                 className="shadow-theme-xs flex h-11 w-11 items-center justify-center gap-2 rounded-full border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
@@ -76,7 +199,7 @@ export default function UserMetaCard({ username, email }: Props) {
               </a>
 
               <a
-                href="https://www.linkedin.com/company/pimjo"
+                href={userInfo.linkedinUrl!}
                 target="_blank"
                 rel="noopener"
                 className="shadow-theme-xs flex h-11 w-11 items-center justify-center gap-2 rounded-full border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
@@ -97,7 +220,7 @@ export default function UserMetaCard({ username, email }: Props) {
               </a>
 
               <a
-                href="https://instagram.com/PimjoHQ"
+                href={userInfo.instagramUrl!}
                 target="_blank"
                 rel="noopener"
                 className="shadow-theme-xs flex h-11 w-11 items-center justify-center gap-2 rounded-full border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
@@ -149,30 +272,45 @@ export default function UserMetaCard({ username, email }: Props) {
               Update your details to keep your profile up-to-date.
             </p>
           </div>
-          <form className="flex flex-col">
-            <div className="custom-scrollbar h-[450px] overflow-y-auto px-2 pb-3">
+
+          <div className="custom-scrollbar h-[450px] overflow-y-auto px-2 pb-3">
+            <form onSubmit={personalForm.handleSubmit(updateProfile)} className="flex flex-col">
               <div>
                 <h5 className="mb-5 text-lg font-medium text-gray-800 lg:mb-6 dark:text-white/90">Social Links</h5>
 
                 <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                   <div>
-                    <Label>Facebook</Label>
-                    <Input type="text" value="https://www.facebook.com/PimjoHQ" />
+                    <Label htmlFor="facebookUrl">Facebook</Label>
+                    <Input type="text" id="facebookUrl" {...personalForm.register('facebookUrl')} />
+                    {personalForm.formState.errors.facebookUrl && (
+                      <p className="text-error-500 mt-1 text-sm">{personalForm.formState.errors.facebookUrl.message}</p>
+                    )}
                   </div>
 
                   <div>
-                    <Label>X.com</Label>
-                    <Input type="text" value="https://x.com/PimjoHQ" />
+                    <Label htmlFor="xUrl">X.com</Label>
+                    <Input type="text" id="xUrl" {...personalForm.register('xUrl')} />
+                    {personalForm.formState.errors.xUrl && (
+                      <p className="text-error-500 mt-1 text-sm">{personalForm.formState.errors.xUrl.message}</p>
+                    )}
                   </div>
 
                   <div>
-                    <Label>Linkedin</Label>
-                    <Input type="text" value="https://www.linkedin.com/company/pimjo" />
+                    <Label htmlFor="linkedinUrl">Linkedin</Label>
+                    <Input type="text" id="linkedinUrl" {...personalForm.register('linkedinUrl')} />
+                    {personalForm.formState.errors.linkedinUrl && (
+                      <p className="text-error-500 mt-1 text-sm">{personalForm.formState.errors.linkedinUrl.message}</p>
+                    )}
                   </div>
 
                   <div>
-                    <Label>Instagram</Label>
-                    <Input type="text" value="https://instagram.com/PimjoHQ" />
+                    <Label htmlFor="instagramUrl">Instagram</Label>
+                    <Input type="text" id="instagramUrl" {...personalForm.register('instagramUrl')} />
+                    {personalForm.formState.errors.instagramUrl && (
+                      <p className="text-error-500 mt-1 text-sm">
+                        {personalForm.formState.errors.instagramUrl.message}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -183,41 +321,102 @@ export default function UserMetaCard({ username, email }: Props) {
 
                 <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                   <div className="col-span-2 lg:col-span-1">
-                    <Label>First Name</Label>
-                    <Input type="text" value="Musharof" />
+                    <Label htmlFor="firstName">First Name</Label>
+                    <Input type="text" id="firstName" {...personalForm.register('firstName')} />
+                    {personalForm.formState.errors.firstName && (
+                      <p className="text-error-500 mt-1 text-sm">{personalForm.formState.errors.firstName.message}</p>
+                    )}
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
-                    <Label>Last Name</Label>
-                    <Input type="text" value="Chowdhury" />
+                    <Label htmlFor="lastName">Last Name</Label>
+                    <Input type="text" id="lastName" {...personalForm.register('lastName')} />
+                    {personalForm.formState.errors.lastName && (
+                      <p className="text-error-500 mt-1 text-sm">{personalForm.formState.errors.lastName.message}</p>
+                    )}
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
-                    <Label>Email Address</Label>
-                    <Input type="text" value="randomuser@pimjo.com" />
+                    <Label htmlFor="username">Username</Label>
+                    <Input type="text" id="username" {...personalForm.register('username')} />
+                    {personalForm.formState.errors.username && (
+                      <p className="text-error-500 mt-1 text-sm">{personalForm.formState.errors.username.message}</p>
+                    )}
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
-                    <Label>Phone</Label>
-                    <Input type="text" value="+09 363 398 46" />
+                    <Label htmlFor="email">Email Address</Label>
+                    <Input type="email" id="email" {...personalForm.register('email')} />
+                    {personalForm.formState.errors.email && (
+                      <p className="text-error-500 mt-1 text-sm">{personalForm.formState.errors.email.message}</p>
+                    )}
                   </div>
 
-                  <div className="col-span-2">
-                    <Label>Bio</Label>
-                    <Input type="text" value="Team Manager" />
+                  <div className="col-span-2 lg:col-span-1">
+                    <Label htmlFor="phone">Phone</Label>
+                    <Input type="text" id="phone" {...personalForm.register('phone')} />
+                    {personalForm.formState.errors.phone && (
+                      <p className="text-error-500 mt-1 text-sm">{personalForm.formState.errors.phone.message}</p>
+                    )}
+                  </div>
+
+                  <div className="col-span-2 lg:col-span-1">
+                    <Label htmlFor="bio">Bio</Label>
+                    <Input type="text" id="bio" {...personalForm.register('bio')} />
+                    {personalForm.formState.errors.bio && (
+                      <p className="text-error-500 mt-1 text-sm">{personalForm.formState.errors.bio.message}</p>
+                    )}
                   </div>
                 </div>
               </div>
-            </div>
-            <div className="mt-6 flex items-center gap-3 px-2 lg:justify-end">
-              <Button size="sm" variant="outline" onClick={closeModal}>
-                Close
-              </Button>
-              <Button size="sm" onClick={handleSave}>
-                Save Changes
-              </Button>
-            </div>
-          </form>
+              <div className="mt-6 flex items-center gap-3 px-2 lg:justify-end">
+                <Button size="sm" variant="outline" onClick={clearPersonalForm}>
+                  Clear
+                </Button>
+                <Button size="sm" disabled={!personalForm.formState.isValid || personalForm.formState.isSubmitting}>
+                  Save Changes
+                </Button>
+              </div>
+            </form>
+            <form onSubmit={resetPasswordForm.handleSubmit(resetPassword)} className="flex flex-col">
+              <div className="mt-7">
+                <h5 className="mb-5 text-lg font-medium text-gray-800 lg:mb-6 dark:text-white/90">Reset Password</h5>
+
+                <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                  <div className="col-span-2 lg:col-span-1">
+                    <Label htmlFor="password">Password</Label>
+                    <Input type="password" id="password" {...resetPasswordForm.register('password')} />
+                    {resetPasswordForm.formState.errors.password && (
+                      <p className="text-error-500 mt-1 text-sm">
+                        {resetPasswordForm.formState.errors.password.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="col-span-2 lg:col-span-1">
+                    <Label htmlFor="confirmPassword">Confirm Password</Label>
+                    <Input type="password" id="confirmPassword" {...resetPasswordForm.register('confirmPassword')} />
+                    {resetPasswordForm.formState.errors.confirmPassword && (
+                      <p className="text-error-500 mt-1 text-sm">
+                        {resetPasswordForm.formState.errors.confirmPassword.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div className="mt-6 flex items-center gap-3 px-2 lg:justify-end">
+                <Button size="sm" variant="outline" onClick={clearResetPasswordForm}>
+                  Clear
+                </Button>
+                <Button
+                  size="sm"
+                  disabled={!resetPasswordForm.formState.isValid || resetPasswordForm.formState.isSubmitting}
+                >
+                  Save Changes
+                </Button>
+              </div>
+            </form>
+          </div>
         </div>
       </Modal>
     </>

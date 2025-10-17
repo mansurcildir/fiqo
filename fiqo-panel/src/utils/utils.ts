@@ -43,7 +43,7 @@ export const useSidebar = () => {
   return context;
 };
 
-export function formatFileSize(bytes: number): string {
+export const formatFileSize = (bytes: number): string => {
   if (bytes < 0) return '0 B';
 
   const units = ['B', 'KB', 'MB', 'GB', 'TB'];
@@ -56,8 +56,14 @@ export function formatFileSize(bytes: number): string {
   }
 
   return `${size.toFixed(1)} ${units[unitIndex]}`;
-}
+};
 
-export function formatDate(dateStr: string, formatStr = 'DD/MM/YYYY HH:mm'): string {
+export const formatDate = (dateStr: string, formatStr = 'DD/MM/YYYY HH:mm'): string => {
   return dayjs(dateStr).format(formatStr);
-}
+};
+
+export const normalizeEntries = <T extends object>(form: T): T => {
+  return Object.fromEntries(
+    Object.entries(form).map(([key, value]) => [key, typeof value === 'string' && value.trim() === '' ? null : value])
+  ) as T;
+};

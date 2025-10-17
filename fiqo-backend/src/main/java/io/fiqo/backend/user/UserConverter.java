@@ -9,5 +9,6 @@ public interface UserConverter {
   @Mapping(
       target = "roles",
       expression = "java(user.getRoles().stream().map(role -> role.getName()).toList())")
+  @Mapping(target = "xUrl", source = "XUrl")
   UserInfo toUserInfo(User user);
 }

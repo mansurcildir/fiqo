@@ -6,26 +6,40 @@ import Input from '../form/input/InputField';
 import Checkbox from '../form/input/Checkbox';
 import { authAPI } from '../../service/auth-service';
 import { SPRING_BASE_URL } from '../../utils/utils';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+
+const validationSchema = yup.object().shape({
+  username: yup.string().required('Username is required').min(3, 'Username should have at least 3 characters'),
+  email: yup.string().required('Email is required').email('Email should be valid format'),
+  password: yup.string().required('Password is required').min(6, 'Password should be at least 6 character')
+});
+
+type FormData = yup.InferType<typeof validationSchema>;
 
 export default function SignUpForm() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
-  const [form, setForm] = useState({
-    username: '',
-    email: '',
-    password: ''
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting, isValid }
+  } = useForm<FormData>({
+    resolver: yupResolver(validationSchema),
+    defaultValues: {
+      username: '',
+      email: '',
+      password: ''
+    },
+    mode: 'all'
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const register = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
+  const signUp = (data: FormData) => {
     authAPI
-      .register(form)
+      .register(data)
       .then(() => {
         navigate('/signin');
       })
@@ -162,30 +176,24 @@ export default function SignUpForm() {
                 <span className="bg-white p-2 text-gray-400 sm:px-5 sm:py-2 dark:bg-gray-900">Or</span>
               </div>
             </div>
-            <form onSubmit={register}>
+            <form onSubmit={handleSubmit(signUp)}>
               <div className="space-y-5">
-                {/* <!-- FUsername --> */}
                 <div>
                   <Label htmlFor="username">
                     Username<span className="text-error-500">*</span>
                   </Label>
-                  <Input
-                    type="text"
-                    id="username"
-                    name="username"
-                    placeholder="Enter your username"
-                    onChange={handleChange}
-                  />
+                  <Input type="text" id="username" placeholder="Enter your username" {...register('username')} />
+                  {errors.username && <p className="text-error-500 mt-1 text-sm">{errors.username.message}</p>}
                 </div>
 
-                {/* <!-- Email --> */}
                 <div>
                   <Label htmlFor="email">
                     Email<span className="text-error-500">*</span>
                   </Label>
-                  <Input type="email" id="email" name="email" placeholder="Enter your email" onChange={handleChange} />
+                  <Input type="email" id="email" placeholder="Enter your email" {...register('email')} />
+                  {errors.email && <p className="text-error-500 mt-1 text-sm">{errors.email.message}</p>}
                 </div>
-                {/* <!-- Password --> */}
+
                 <div>
                   <Label htmlFor="password">
                     Password<span className="text-error-500">*</span>
@@ -195,8 +203,7 @@ export default function SignUpForm() {
                       placeholder="Enter your password"
                       type={showPassword ? 'text' : 'password'}
                       id="password"
-                      name="password"
-                      onChange={handleChange}
+                      {...register('password')}
                     />
                     <span
                       onClick={() => setShowPassword(!showPassword)}
@@ -209,6 +216,7 @@ export default function SignUpForm() {
                       )}
                     </span>
                   </div>
+                  {errors.password && <p className="text-error-500 mt-1 text-sm">{errors.password.message}</p>}
                 </div>
                 {/* <!-- Checkbox --> */}
                 <div className="flex items-center gap-3">
@@ -220,14 +228,13 @@ export default function SignUpForm() {
                   </p>
                 </div>
                 {/* <!-- Button --> */}
-                <div>
-                  <button
-                    type="submit"
-                    className="bg-brand-500 shadow-theme-xs hover:bg-brand-600 flex w-full items-center justify-center rounded-lg px-4 py-3 text-sm font-medium text-white transition"
-                  >
-                    Sign Up
-                  </button>
-                </div>
+                <button
+                  type="submit"
+                  disabled={!isValid || isSubmitting}
+                  className="bg-brand-500 shadow-theme-xs hover:bg-brand-600 flex w-full items-center justify-center rounded-lg px-4 py-3 text-sm font-medium text-white transition disabled:opacity-50"
+                >
+                  {isSubmitting ? 'Signing In...' : 'Sign In'}
+                </button>
               </div>
             </form>
 

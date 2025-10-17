@@ -44,11 +44,35 @@ public class User {
   @Column(name = "password")
   private String password;
 
+  @Column(name = "first_name")
+  private String firstName;
+
+  @Column(name = "last_name")
+  private String lastName;
+
   @Column(name = "email", unique = true, nullable = false)
   private String email;
 
-  @Column(name = "total_size", nullable = false)
-  private long totalSize;
+  @Column(name = "phone")
+  private String phone;
+
+  @Column(name = "facebook_url")
+  private String facebookUrl;
+
+  @Column(name = "x_url")
+  private String xUrl;
+
+  @Column(name = "linkedin_url")
+  private String linkedinUrl;
+
+  @Column(name = "instagram_url")
+  private String instagramUrl;
+
+  @Column(name = "bio")
+  private String bio;
+
+  @Column(name = "total_file_size", nullable = false)
+  private long totalFileSize;
 
   @Column(name = "deleted", nullable = false)
   private boolean deleted;

@@ -67,7 +67,7 @@ public class FileService {
       this.updateFile(file.get(), hashHex, size);
     }
 
-    this.userRepository.updateTotalSizeByUuid(userUuid, size);
+    this.userRepository.updateTotalFileSizeByUuid(userUuid, size);
   }
 
   private void createFile(

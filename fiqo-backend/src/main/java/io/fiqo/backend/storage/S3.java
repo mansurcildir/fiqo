@@ -1,6 +1,7 @@
 package io.fiqo.backend.storage;
 
 import io.fiqo.backend.file.dto.FileInfo;
+import io.minio.CopyObjectArgs;
 import io.minio.GetObjectArgs;
 import io.minio.ListObjectsArgs;
 import io.minio.MinioClient;
@@ -80,6 +81,17 @@ public class S3 implements StorageStrategy {
     }
 
     return this.listFiles(path, files);
+  }
+
+  @Override
+  public void copyFile(final @NotNull String sourcePath, final @NotNull String targetPath)
+      throws Exception {
+    this.minioClient.copyObject(
+        CopyObjectArgs.builder()
+            .source(io.minio.CopySource.builder().bucket(this.bucket).object(sourcePath).build())
+            .bucket(this.bucket)
+            .object(targetPath)
+            .build());
   }
 
   private @NotNull List<FileInfo> listFile(

@@ -136,7 +136,7 @@ def upload_file(target: str, resource: str):
     }
 
     with open(resource, "rb") as f:
-        res = requests.put(url, headers=headers, data=f)
+        res = requests.post(url, headers=headers, data=f)
 
     if res.status_code != 200:
         raise Exception(f"⚠️  {res.status_code} {res.json()["message"]} ")

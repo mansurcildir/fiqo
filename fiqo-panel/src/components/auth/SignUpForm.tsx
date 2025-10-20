@@ -192,7 +192,11 @@ export default function SignUpForm() {
                     Username<span className="text-error-500">*</span>
                   </Label>
                   <Input type="text" id="username" placeholder="Enter your username" {...register('username')} />
-                  <p className="text-error-500 h-1 py-1 text-sm">{errors.username?.message ?? ''}</p>
+                  <p
+                    className={`text-error-500 h-1 py-1 text-sm transition-all duration-300 ease-in-out ${errors.username ? 'opacity-100' : 'opacity-0'}`}
+                  >
+                    {errors.username?.message ?? ' '}
+                  </p>
                 </div>
 
                 <div>
@@ -200,7 +204,11 @@ export default function SignUpForm() {
                     Email<span className="text-error-500">*</span>
                   </Label>
                   <Input type="email" id="email" placeholder="Enter your email" {...register('email')} />
-                  <p className="text-error-500 h-1 py-1 text-sm">{errors.email?.message ?? ''}</p>
+                  <p
+                    className={`text-error-500 h-1 py-1 text-sm transition-all duration-300 ease-in-out ${errors.email ? 'opacity-100' : 'opacity-0'}`}
+                  >
+                    {errors.email?.message ?? ' '}
+                  </p>
                 </div>
 
                 <div>
@@ -225,7 +233,11 @@ export default function SignUpForm() {
                       )}
                     </span>
                   </div>
-                  <p className="text-error-500 h-1 py-1 text-sm">{errors.password?.message ?? ''}</p>
+                  <p
+                    className={`text-error-500 h-1 py-1 text-sm transition-all duration-300 ease-in-out ${errors.password ? 'opacity-100' : 'opacity-0'}`}
+                  >
+                    {errors.password?.message ?? ' '}
+                  </p>
                 </div>
                 {/* <!-- Checkbox --> */}
                 <div className="flex items-center gap-3">

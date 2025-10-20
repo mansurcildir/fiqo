@@ -137,4 +137,33 @@ public class FileService {
         .map(this.fileConverter::toFileInfo)
         .toList();
   }
+
+  public void copyFile(
+      final @NotNull UUID userUuid,
+      final @NotNull String sourceRelativePath,
+      final @NotNull String targetRelativePath)
+      throws Exception {
+
+    final String sourcePath = userUuid + "/" + sourceRelativePath;
+    final String targetPath = userUuid + "/" + targetRelativePath;
+
+    final File file =
+        this.fileRepository
+            .findByPathAndUserUuid(sourceRelativePath, userUuid)
+            .orElseThrow(() -> new ItemNotFoundException("fileNotFound"));
+
+    this.createFile(userUuid, targetRelativePath, file.getDigest(), file.getSize());
+    this.fileRepository.save(file);
+    this.storageStrategy.copyFile(sourcePath, targetPath);
+  }
+
+  public void pasteFile(
+      final @NotNull UUID userUuid,
+      final @NotNull String sourceRelativePath,
+      final @NotNull String targetRelativePath)
+      throws Exception {
+
+    this.copyFile(userUuid, sourceRelativePath, targetRelativePath);
+    this.removeFile(userUuid, sourceRelativePath);
+  }
 }

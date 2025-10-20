@@ -9,7 +9,7 @@ import { useAlert } from '../service/alert-service';
 
 export default function UserProfiles() {
   const { showAlert } = useAlert();
-  const [avatarSrc, setAvatarSrc] = useState<string>('');
+  const [avatarSrc, setAvatarSrc] = useState<string>('/images/user/user-01.jpg');
   const [userInfo, setUserInfo] = useState<UserInfo>({
     uuid: '',
     username: '',

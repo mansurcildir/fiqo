@@ -4,6 +4,9 @@ import AppHeader from './AppHeader';
 import Backdrop from './Backdrop';
 import AppSidebar from './AppSidebar';
 import { useSidebar } from '../utils/utils';
+import CircularProgress from '@mui/material/CircularProgress';
+import { useEffect, useState } from 'react';
+import { authAPI } from '../service/auth-service';
 
 const LayoutContent: React.FC = () => {
   const { isExpanded, isHovered, isMobileOpen } = useSidebar();
@@ -29,10 +32,23 @@ const LayoutContent: React.FC = () => {
 };
 
 const AppLayout: React.FC = () => {
-  return (
+  const [authorized, setAuthorized] = useState<boolean>(false);
+
+  useEffect(() => {
+    setAuthorized(false);
+    authAPI.authorize().then(() => {
+      setAuthorized(true);
+    });
+  });
+
+  return authorized ? (
     <SidebarProvider>
       <LayoutContent />
     </SidebarProvider>
+  ) : (
+    <div className="flex h-screen items-center justify-center">
+      <CircularProgress />
+    </div>
   );
 };
 

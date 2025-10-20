@@ -17,6 +17,7 @@ interface FileItem {
 }
 
 export default function Home() {
+  const [loading, setLoading] = useState<boolean>(true);
   const [files, setDirectories] = useState<FileItem[]>([]);
   const [currentPath] = useState<string>('');
   const { showAlert } = useAlert();
@@ -26,6 +27,8 @@ export default function Home() {
   }, [currentPath]);
 
   const fetchFiles = async () => {
+    setLoading(true);
+
     fileAPI
       .getAllFiles(currentPath)
       .then((res) => {
@@ -33,6 +36,9 @@ export default function Home() {
       })
       .catch((err) => {
         showAlert(err.response.data.message, 'error');
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
 
@@ -118,6 +124,7 @@ export default function Home() {
       <FileManager
         primaryColor={'#465fff'}
         files={files}
+        filePreviewPath="http://."
         filePreviewComponent={(file: FileItem) => <CustomPreview file={file} />}
         onDownload={(files: Array<FileItem>) => {
           files.forEach((file) => {
@@ -131,15 +138,17 @@ export default function Home() {
         }}
         fileUploadConfig={{
           url: `${SPRING_BASE_URL}/v1/files/multipart`,
-          method: 'PUT',
+          method: 'POST',
           headers: {
             Authorization: `Bearer ${getAccessToken()}`
           }
         }}
         onFileUploading={(file: FileItem, parentFolder: FileItem) => {
+          setLoading(true);
           const uploadPath = `${parentFolder?.path ? parentFolder?.path + '/' : ''}${file.name}`;
           return { path: uploadPath };
         }}
+        onFileUploaded={fetchFiles}
         onCreateFolder={(name: string, parentFolder: FileItem) => {
           const file: FileItem = {
             name: name,
@@ -151,6 +160,34 @@ export default function Home() {
 
           setDirectories([file, ...files]);
         }}
+        onRefresh={fetchFiles}
+        onPaste={(files: Array<FileItem>, destinationFolder: FileItem, operationType: 'copy' | 'move') => {
+          setLoading(true);
+
+          files.forEach((file) => {
+            const targetPath = `${destinationFolder.path}/${file.name}`;
+            if (operationType === 'copy') {
+              fileAPI.pasteFile(file.path, targetPath, operationType).then(fetchFiles);
+            } else if (operationType === 'move') {
+              fileAPI.pasteFile(file.path, targetPath, operationType).then(fetchFiles);
+            }
+          });
+        }}
+        onRename={(file: FileItem, newName: string) => {
+          setLoading(true);
+
+          const parts = file.path.split('/');
+          parts[parts.length - 1] = newName;
+          const newPath = parts.join('/');
+
+          fileAPI
+            .pasteFile(file.path, newPath, 'move')
+            .then(() => fetchFiles())
+            .catch((err) => showAlert(err.response.data.message, 'error'))
+            .finally(() => setLoading(false));
+        }}
+        isLoading={loading}
+        fontFamily="Outfit"
       />
     </>
   );

@@ -93,7 +93,11 @@ export default function ResetPasswordForm() {
                     Password<span className="text-error-500">*</span>
                   </Label>
                   <Input type="password" id="password" {...register('password')} />
-                  <p className="text-error-500 h-1 py-1 text-sm">{errors.password?.message ?? ''}</p>
+                  <p
+                    className={`text-error-500 h-1 py-1 text-sm transition-all duration-300 ease-in-out ${errors.password ? 'opacity-100' : 'opacity-0'}`}
+                  >
+                    {errors.password?.message ?? ' '}
+                  </p>
                 </div>
 
                 <div>
@@ -101,7 +105,11 @@ export default function ResetPasswordForm() {
                     Confirm password<span className="text-error-500">*</span>
                   </Label>
                   <Input type="password" id="confirmPassword" {...register('confirmPassword')} />
-                  <p className="text-error-500 h-1 py-1 text-sm">{errors.confirmPassword?.message ?? ''}</p>
+                  <p
+                    className={`text-error-500 h-1 py-1 text-sm transition-all duration-300 ease-in-out ${errors.confirmPassword ? 'opacity-100' : 'opacity-0'}`}
+                  >
+                    {errors.confirmPassword?.message ?? ' '}
+                  </p>
                 </div>
 
                 <div>
@@ -109,7 +117,11 @@ export default function ResetPasswordForm() {
                     Code<span className="text-error-500">*</span>
                   </Label>
                   <Input type="text" id="code" {...register('code')} />
-                  <p className="text-error-500 h-1 py-1 text-sm">{errors.code?.message ?? ''}</p>
+                  <p
+                    className={`text-error-500 h-1 py-1 text-sm transition-all duration-300 ease-in-out ${errors.code ? 'opacity-100' : 'opacity-0'}`}
+                  >
+                    {errors.code?.message ?? ' '}
+                  </p>
                 </div>
 
                 <button

@@ -195,7 +195,11 @@ export default function ForgotPasswordForm() {
                     Username <span className="text-error-500">*</span>{' '}
                   </Label>
                   <Input type="text" id="username" placeholder="Enter your username" {...register('username')} />
-                  <p className="text-error-500 h-1 py-1 text-sm">{errors.username?.message ?? ''}</p>
+                  <p
+                    className={`text-error-500 h-1 py-1 text-sm transition-all duration-300 ease-in-out ${errors.username ? 'opacity-100' : 'opacity-0'}`}
+                  >
+                    {errors.username?.message ?? ' '}
+                  </p>
                 </div>
                 <div>
                   <Label htmlFor="password">
@@ -219,7 +223,11 @@ export default function ForgotPasswordForm() {
                       )}
                     </span>
                   </div>
-                  <p className="text-error-500 h-1 py-1 text-sm">{errors.password?.message ?? ''}</p>
+                  <p
+                    className={`text-error-500 h-1 py-1 text-sm transition-all duration-300 ease-in-out ${errors.password ? 'opacity-100' : 'opacity-0'}`}
+                  >
+                    {errors.password?.message ?? ' '}
+                  </p>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">

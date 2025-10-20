@@ -24,6 +24,7 @@ export const authAPI = {
   },
 
   logout: async (): Promise<void> => {
+    await authAPI.authorize();
     const accessToken = getAccessToken();
     await axios.get(`${SPRING_BASE_URL}/v1/auth/logout`, {
       headers: {

@@ -15,7 +15,7 @@ export default function UserDropdown({ userInfo }: Props) {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const { showAlert } = useAlert();
-  const [avatarSrc, setAvatarSrc] = useState<string>('');
+  const [avatarSrc, setAvatarSrc] = useState<string>('/images/user/user-01.jpg');
 
   function toggleDropdown() {
     setIsOpen(!isOpen);

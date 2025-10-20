@@ -89,11 +89,13 @@ const DropzoneComponent: React.FC = () => {
             </span>
 
             <span className="text-theme-sm text-brand-500 font-medium underline">Browse File</span>
+
+            {file && <div className="mt-4 text-sm text-gray-700 dark:text-gray-300">{file.name}</div>}
           </div>
         </form>
       </div>
       <div className="mt-6 flex items-center gap-3 px-2 lg:justify-end">
-        <Button className="ml-auto" size="sm" onClick={uploadAvatar}>
+        <Button className="ml-auto" size="sm" onClick={uploadAvatar} disabled={!file}>
           Upload
         </Button>
       </div>

@@ -132,32 +132,40 @@ export default function ProfileModal({ userInfo, fetchProfile, isOpen, closeModa
                   <div>
                     <Label htmlFor="facebookUrl">Facebook</Label>
                     <Input type="text" id="facebookUrl" {...personalForm.register('facebookUrl')} />
-                    <p className="text-error-500 h-1 py-1 text-sm">
-                      {personalForm.formState.errors.facebookUrl?.message ?? ''}
+                    <p
+                      className={`text-error-500 h-1 py-1 text-sm transition-all duration-300 ease-in-out ${personalForm.formState.errors.facebookUrl ? 'opacity-100' : 'opacity-0'}`}
+                    >
+                      {personalForm.formState.errors.facebookUrl?.message ?? ' '}
                     </p>
                   </div>
 
                   <div>
                     <Label htmlFor="xUrl">X.com</Label>
                     <Input type="text" id="xUrl" {...personalForm.register('xUrl')} />
-                    <p className="text-error-500 h-1 py-1 text-sm">
-                      {personalForm.formState.errors.xUrl?.message ?? ''}
+                    <p
+                      className={`text-error-500 h-1 py-1 text-sm transition-all duration-300 ease-in-out ${personalForm.formState.errors.xUrl ? 'opacity-100' : 'opacity-0'}`}
+                    >
+                      {personalForm.formState.errors.xUrl?.message ?? ' '}
                     </p>
                   </div>
 
                   <div>
                     <Label htmlFor="linkedinUrl">Linkedin</Label>
                     <Input type="text" id="linkedinUrl" {...personalForm.register('linkedinUrl')} />
-                    <p className="text-error-500 h-1 py-1 text-sm">
-                      {personalForm.formState.errors.linkedinUrl?.message ?? ''}
+                    <p
+                      className={`text-error-500 h-1 py-1 text-sm transition-all duration-300 ease-in-out ${personalForm.formState.errors.linkedinUrl ? 'opacity-100' : 'opacity-0'}`}
+                    >
+                      {personalForm.formState.errors.linkedinUrl?.message ?? ' '}
                     </p>
                   </div>
 
                   <div>
                     <Label htmlFor="instagramUrl">Instagram</Label>
                     <Input type="text" id="instagramUrl" {...personalForm.register('instagramUrl')} />
-                    <p className="text-error-500 h-1 py-1 text-sm">
-                      {personalForm.formState.errors.instagramUrl?.message ?? ''}
+                    <p
+                      className={`text-error-500 h-1 py-1 text-sm transition-all duration-300 ease-in-out ${personalForm.formState.errors.instagramUrl ? 'opacity-100' : 'opacity-0'}`}
+                    >
+                      {personalForm.formState.errors.instagramUrl?.message ?? ' '}
                     </p>
                   </div>
                 </div>
@@ -171,48 +179,60 @@ export default function ProfileModal({ userInfo, fetchProfile, isOpen, closeModa
                   <div className="col-span-2 lg:col-span-1">
                     <Label htmlFor="firstName">First Name</Label>
                     <Input type="text" id="firstName" {...personalForm.register('firstName')} />
-                    <p className="text-error-500 h-1 py-1 text-sm">
-                      {personalForm.formState.errors.firstName?.message ?? ''}
+                    <p
+                      className={`text-error-500 h-1 py-1 text-sm transition-all duration-300 ease-in-out ${personalForm.formState.errors.firstName ? 'opacity-100' : 'opacity-0'}`}
+                    >
+                      {personalForm.formState.errors.firstName?.message ?? ' '}
                     </p>
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
                     <Label htmlFor="lastName">Last Name</Label>
                     <Input type="text" id="lastName" {...personalForm.register('lastName')} />
-                    <p className="text-error-500 h-1 py-1 text-sm">
-                      {personalForm.formState.errors.lastName?.message ?? ''}
+                    <p
+                      className={`text-error-500 h-1 py-1 text-sm transition-all duration-300 ease-in-out ${personalForm.formState.errors.lastName ? 'opacity-100' : 'opacity-0'}`}
+                    >
+                      {personalForm.formState.errors.lastName?.message ?? ' '}
                     </p>
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
                     <Label htmlFor="username">Username</Label>
                     <Input type="text" id="username" {...personalForm.register('username')} />
-                    <p className="text-error-500 h-1 py-1 text-sm">
-                      {personalForm.formState.errors.username?.message ?? ''}
+                    <p
+                      className={`text-error-500 h-1 py-1 text-sm transition-all duration-300 ease-in-out ${personalForm.formState.errors.username ? 'opacity-100' : 'opacity-0'}`}
+                    >
+                      {personalForm.formState.errors.username?.message ?? ' '}
                     </p>
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
                     <Label htmlFor="email">Email Address</Label>
                     <Input type="email" id="email" {...personalForm.register('email')} />
-                    <p className="text-error-500 h-1 py-1 text-sm">
-                      {personalForm.formState.errors.email?.message ?? ''}
+                    <p
+                      className={`text-error-500 h-1 py-1 text-sm transition-all duration-300 ease-in-out ${personalForm.formState.errors.email ? 'opacity-100' : 'opacity-0'}`}
+                    >
+                      {personalForm.formState.errors.email?.message ?? ' '}
                     </p>
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
                     <Label htmlFor="phone">Phone</Label>
                     <Input type="text" id="phone" {...personalForm.register('phone')} />
-                    <p className="text-error-500 h-1 py-1 text-sm">
-                      {personalForm.formState.errors.phone?.message ?? ''}
+                    <p
+                      className={`text-error-500 h-1 py-1 text-sm transition-all duration-300 ease-in-out ${personalForm.formState.errors.phone ? 'opacity-100' : 'opacity-0'}`}
+                    >
+                      {personalForm.formState.errors.phone?.message ?? ' '}
                     </p>
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
                     <Label htmlFor="bio">Bio</Label>
                     <Input type="text" id="bio" {...personalForm.register('bio')} />
-                    <p className="text-error-500 h-1 py-1 text-sm">
-                      {personalForm.formState.errors.bio?.message ?? ''}
+                    <p
+                      className={`text-error-500 h-1 py-1 text-sm transition-all duration-300 ease-in-out ${personalForm.formState.errors.bio ? 'opacity-100' : 'opacity-0'}`}
+                    >
+                      {personalForm.formState.errors.bio?.message ?? ' '}
                     </p>
                   </div>
                 </div>
@@ -236,16 +256,20 @@ export default function ProfileModal({ userInfo, fetchProfile, isOpen, closeModa
                   <div className="col-span-2 lg:col-span-1">
                     <Label htmlFor="password">Password</Label>
                     <Input type="password" id="password" {...resetPasswordForm.register('password')} />
-                    <p className="text-error-500 h-1 py-1 text-sm">
-                      {resetPasswordForm.formState.errors.password?.message ?? ''}
+                    <p
+                      className={`text-error-500 h-1 py-1 text-sm transition-all duration-300 ease-in-out ${resetPasswordForm.formState.errors.password ? 'opacity-100' : 'opacity-0'}`}
+                    >
+                      {resetPasswordForm.formState.errors.password?.message ?? ' '}
                     </p>
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
                     <Label htmlFor="confirmPassword">Confirm Password</Label>
                     <Input type="password" id="confirmPassword" {...resetPasswordForm.register('confirmPassword')} />
-                    <p className="text-error-500 h-1 py-1 text-sm">
-                      {resetPasswordForm.formState.errors.confirmPassword?.message ?? ''}
+                    <p
+                      className={`text-error-500 h-1 py-1 text-sm transition-all duration-300 ease-in-out ${resetPasswordForm.formState.errors.confirmPassword ? 'opacity-100' : 'opacity-0'}`}
+                    >
+                      {resetPasswordForm.formState.errors.confirmPassword?.message ?? ' '}
                     </p>
                   </div>
                 </div>

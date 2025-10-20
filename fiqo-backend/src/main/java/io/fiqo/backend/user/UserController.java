@@ -14,7 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,7 +36,7 @@ public class UserController {
         .body(this.responseFactory.success(HttpStatus.OK.value(), "profileFetched", userInfo));
   }
 
-  @PutMapping("/profile")
+  @PostMapping("/profile")
   public @NotNull ResponseEntity<Result> updatePersonalInfo(
       final @NotNull Authentication authentication,
       @Valid @RequestBody final @NotNull ProfileForm profileForm) {
@@ -54,7 +54,7 @@ public class UserController {
     return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(bytes);
   }
 
-  @PutMapping("/avatar")
+  @PostMapping("/avatar")
   public @NotNull ResponseEntity<Result> uploadAvatar(
       final @NotNull Authentication authentication, final @NotNull HttpServletRequest request)
       throws Exception {

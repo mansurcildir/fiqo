@@ -36,7 +36,7 @@ export const userAPI = {
   uploadAvatar: async (body: FormData) => {
     await authAPI.authorize();
     const accessToken = getAccessToken();
-    const response = await axios.put(`${SPRING_BASE_URL}/v1/users/avatar`, body, {
+    const response = await axios.post(`${SPRING_BASE_URL}/v1/users/avatar`, body, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
         'Content-Type': 'multipart/form-data'

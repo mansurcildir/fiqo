@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/v1/files")
@@ -38,6 +39,20 @@ public class FileController {
 
     final UserDetails userDetails = (UserDetails) authentication.getPrincipal();
     this.fileService.uploadFile(userDetails.userUuid(), path, request.getInputStream());
+    return ResponseEntity.ok(this.responseFactory.success(HttpStatus.OK.value(), "fileUploaded"));
+  }
+
+  @PutMapping(
+      path = "multipart",
+      consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+  public @NotNull ResponseEntity<Result> uploadFile(
+      final @NotNull Authentication authentication,
+      @RequestParam final String path,
+      @RequestParam("file") final @NotNull MultipartFile file)
+      throws Exception {
+
+    final UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+    this.fileService.uploadFile(userDetails.userUuid(), path, file.getInputStream());
     return ResponseEntity.ok(this.responseFactory.success(HttpStatus.OK.value(), "fileUploaded"));
   }
 

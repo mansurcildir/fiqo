@@ -6,13 +6,23 @@ import NotificationDropdown from '../components/header/NotificationDropdown';
 import UserDropdown from '../components/header/UserDropdown';
 import { userAPI } from '../service/user-service';
 import { useSidebar } from '../utils/utils';
+import { useAlert } from '../service/alert-service';
 
 const AppHeader: React.FC = () => {
+  const { showAlert } = useAlert();
   const [userInfo, setUserInfo] = useState({
     uuid: '',
     username: '',
     email: '',
-    totalSize: 0
+    firstName: '',
+    lastName: '',
+    phone: '',
+    bio: '',
+    facebookUrl: '',
+    xUrl: '',
+    linkedinUrl: '',
+    instagramUrl: '',
+    totalFileSize: 0
   });
 
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
@@ -35,14 +45,27 @@ const AppHeader: React.FC = () => {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      userAPI.getProfile().then((res) => {
-        setUserInfo({
-          uuid: res.data.uuid,
-          username: res.data.username,
-          email: res.data.email,
-          totalSize: res.data.totalSize
+      userAPI
+        .getProfile()
+        .then((res) => {
+          setUserInfo({
+            uuid: res.data.uuid,
+            username: res.data.username,
+            email: res.data.email,
+            firstName: res.data.firstName,
+            lastName: res.data.lastName,
+            phone: res.data.phone,
+            bio: res.data.bio,
+            facebookUrl: res.data.facebookUrl,
+            xUrl: res.data.xUrl,
+            linkedinUrl: res.data.linkedinUrl,
+            instagramUrl: res.data.instagramUrl,
+            totalFileSize: res.data.totalFileSize
+          });
+        })
+        .catch((err) => {
+          showAlert(err, 'error');
         });
-      });
     };
 
     fetchProfile();
@@ -95,8 +118,8 @@ const AppHeader: React.FC = () => {
           </button>
 
           <Link to="/" className="lg:hidden">
-            <img className="dark:hidden" src="./images/logo/logo.png" alt="Logo" width={150} height={40} />
-            <img className="hidden dark:block" src="./images/logo/logo.png" alt="Logo" width={150} height={40} />
+            <img className="dark:hidden" src="./images/logo/logo-dark.png" alt="Logo" width={150} height={40} />
+            <img className="hidden dark:block" src="./images/logo/logo-light.png" alt="Logo" width={150} height={40} />
           </Link>
 
           <button

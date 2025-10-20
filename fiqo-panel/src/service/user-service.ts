@@ -31,5 +31,31 @@ export const userAPI = {
       }
     });
     return response.data;
+  },
+
+  uploadAvatar: async (body: FormData) => {
+    await authAPI.authorize();
+    const accessToken = getAccessToken();
+    const response = await axios.put(`${SPRING_BASE_URL}/v1/users/avatar`, body, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+    return response.data;
+  },
+
+  getAvatar: async (): Promise<ArrayBuffer> => {
+    await authAPI.authorize();
+    const accessToken = getAccessToken();
+
+    const response = await axios.get(`${SPRING_BASE_URL}/v1/users/avatar`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      },
+      responseType: 'arraybuffer'
+    });
+
+    return response.data;
   }
 };

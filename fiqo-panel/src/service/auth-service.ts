@@ -9,6 +9,8 @@ import { clearTokens, getAccessToken, getAllTokens, getRefreshToken } from './st
 import { isTokenExpired } from './token-decoder';
 import { ResetPasswordForm } from '../model/user/ResetPasswordForm';
 import { Result } from '../model/result/Result';
+import { EmailForm } from '../model/user/EmailForm';
+import { RecoverPasswordForm } from '../model/user/RecoverPasswordForm';
 
 export const authAPI = {
   login: async (body: LoginReq): Promise<DataResult<LoginRes>> => {
@@ -79,6 +81,16 @@ export const authAPI = {
         'Content-Type': 'application/json'
       }
     });
+    return response.data;
+  },
+
+  sendVerificationEmail: async (body: EmailForm): Promise<Result> => {
+    const response = await axios.post(`${SPRING_BASE_URL}/v1/auth/password-recovery`, body);
+    return response.data;
+  },
+
+  recoverPassword: async (body: RecoverPasswordForm): Promise<Result> => {
+    const response = await axios.put(`${SPRING_BASE_URL}/v1/auth/recover-password`, body);
     return response.data;
   }
 };

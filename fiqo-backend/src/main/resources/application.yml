@@ -35,6 +35,8 @@ storage:
     credentials:
       access-key: ${MINIO_ACCESS_KEY:admin}
       secret-key: ${MINIO_SECRET_KEY:admin123}
+  avatar:
+    path: avatars
 
 jwt:
   access-exp-min: ${ACCESS_TOKEN_EXP_MIN:5}
@@ -99,10 +101,10 @@ spring:
             email-uri: https://api.github.com/user/emails
 
   mail:
-    host: ${SMTP_HOST:YOUR_SMTP_HOST}
+    host: ${SMTP_HOST:smtp.gmail.com}
     port: ${SMTP_PORT:587}
-    username: ${SENDER_EMAIL:YOUR_SENDER_EMAIL}
-    password: ${SENDER_EMAIL_PASSWORD:YOUR_SENDER_EMAIL_PASSWORD}
+    username: ${SENDER_EMAIL:mansurcildir@gmail.com}
+    password: ${SENDER_EMAIL_PASSWORD:frfr lbzh jusq srwn}
     properties:
       mail:
         smtp:

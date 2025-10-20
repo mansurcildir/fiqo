@@ -40,5 +40,19 @@ export const fileAPI = {
       }
     });
     return response.data;
+  },
+
+  uploadFile: async (path: string, file: File): Promise<Result> => {
+    const accessToken = getAccessToken();
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await axios.put(`${SPRING_BASE_URL}/v1/files?path=${encodeURIComponent(path)}`, file, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': file.type || 'application/octet-stream'
+      }
+    });
+    return response.data;
   }
 };

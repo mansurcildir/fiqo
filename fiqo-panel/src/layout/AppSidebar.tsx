@@ -200,11 +200,20 @@ const AppSidebar: React.FC = () => {
         <Link to="/">
           {isExpanded || isHovered || isMobileOpen ? (
             <>
-              <img className="dark:hidden" src="/images/logo/logo.png" alt="Logo" width={150} height={40} />
-              <img className="hidden dark:block" src="/images/logo/logo.png" alt="Logo" width={150} height={40} />
+              <img className="dark:hidden" src="/images/logo/logo-dark.png" alt="Logo" width={150} height={40} />
+              <img className="hidden dark:block" src="/images/logo/logo-light.png" alt="Logo" width={150} height={40} />
             </>
           ) : (
-            <img src="/images/logo/logo-icon.png" alt="Logo" width={32} height={32} />
+            <>
+              <img className="dark:hidden" src="/images/logo/logo-icon-dark.png" alt="Logo" width={32} height={32} />
+              <img
+                className="hidden dark:block"
+                src="/images/logo/logo-icon-light.png"
+                alt="Logo"
+                width={32}
+                height={32}
+              />
+            </>
           )}
         </Link>
       </div>

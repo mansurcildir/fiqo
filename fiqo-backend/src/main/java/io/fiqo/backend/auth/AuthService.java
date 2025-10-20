@@ -145,6 +145,8 @@ public class AuthService {
     user.setPassword(encodedPassword);
 
     this.userRepository.save(user);
+
+    this.verificationRepository.delete(verification);
   }
 
   public void resetPassword(

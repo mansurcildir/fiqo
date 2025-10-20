@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from '../../icons';
 import Label from '../form/Label';
@@ -9,6 +9,8 @@ import { SPRING_BASE_URL } from '../../utils/utils';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
+import { UserForm } from '../../model/user/UserForm';
+import { useAlert } from '../../service/alert-service';
 
 const validationSchema = yup.object().shape({
   username: yup.string().required('Username is required').min(3, 'Username should have at least 3 characters'),
@@ -16,18 +18,18 @@ const validationSchema = yup.object().shape({
   password: yup.string().required('Password is required').min(6, 'Password should be at least 6 character')
 });
 
-type FormData = yup.InferType<typeof validationSchema>;
-
 export default function SignUpForm() {
+  const [loggedIn, setLoggedIn] = useState(false);
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
+  const { showAlert } = useAlert();
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting, isValid }
-  } = useForm<FormData>({
+  } = useForm<UserForm>({
     resolver: yupResolver(validationSchema),
     defaultValues: {
       username: '',
@@ -37,13 +39,20 @@ export default function SignUpForm() {
     mode: 'all'
   });
 
-  const signUp = (data: FormData) => {
-    authAPI
+  useEffect(() => {
+    const loggedIn = localStorage.getItem('access-token');
+    setLoggedIn(loggedIn ? true : false);
+  }, []);
+
+  const signUp = async (data: UserForm) => {
+    return authAPI
       .register(data)
       .then(() => {
         navigate('/signin');
       })
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        showAlert(err.response.data.message, 'error');
+      });
   };
 
   const loginGoogle = () => {
@@ -107,11 +116,11 @@ export default function SignUpForm() {
   };
 
   return (
-    <div className="no-scrollbar flex w-full flex-1 flex-col overflow-y-auto lg:w-1/2">
-      <div className="mx-auto mb-5 w-full max-w-md sm:pt-10">
+    <div className="flex flex-1 flex-col">
+      <div className="mx-auto w-full max-w-md pt-10">
         <Link
           to="/"
-          className="inline-flex items-center text-sm text-gray-500 transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+          className={`inline-flex items-center text-sm text-gray-500 transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 ${!loggedIn ? 'invisible' : ''}`}
         >
           <ChevronLeftIcon className="size-5" />
           Back to dashboard
@@ -183,7 +192,7 @@ export default function SignUpForm() {
                     Username<span className="text-error-500">*</span>
                   </Label>
                   <Input type="text" id="username" placeholder="Enter your username" {...register('username')} />
-                  {errors.username && <p className="text-error-500 mt-1 text-sm">{errors.username.message}</p>}
+                  <p className="text-error-500 h-1 py-1 text-sm">{errors.username?.message ?? ''}</p>
                 </div>
 
                 <div>
@@ -191,7 +200,7 @@ export default function SignUpForm() {
                     Email<span className="text-error-500">*</span>
                   </Label>
                   <Input type="email" id="email" placeholder="Enter your email" {...register('email')} />
-                  {errors.email && <p className="text-error-500 mt-1 text-sm">{errors.email.message}</p>}
+                  <p className="text-error-500 h-1 py-1 text-sm">{errors.email?.message ?? ''}</p>
                 </div>
 
                 <div>
@@ -216,7 +225,7 @@ export default function SignUpForm() {
                       )}
                     </span>
                   </div>
-                  {errors.password && <p className="text-error-500 mt-1 text-sm">{errors.password.message}</p>}
+                  <p className="text-error-500 h-1 py-1 text-sm">{errors.password?.message ?? ''}</p>
                 </div>
                 {/* <!-- Checkbox --> */}
                 <div className="flex items-center gap-3">
@@ -233,7 +242,7 @@ export default function SignUpForm() {
                   disabled={!isValid || isSubmitting}
                   className="bg-brand-500 shadow-theme-xs hover:bg-brand-600 flex w-full items-center justify-center rounded-lg px-4 py-3 text-sm font-medium text-white transition disabled:opacity-50"
                 >
-                  {isSubmitting ? 'Signing In...' : 'Sign In'}
+                  Sign Up
                 </button>
               </div>
             </form>

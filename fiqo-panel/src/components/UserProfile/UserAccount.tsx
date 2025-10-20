@@ -3,8 +3,10 @@ import { PlugInIcon } from '../../icons';
 import { Account } from '../../model/account/Account';
 import { accountAPI } from '../../service/account-service';
 import Button from '../ui/button/Button';
+import { useAlert } from '../../service/alert-service';
 
 export default function UserAccount() {
+  const { showAlert } = useAlert();
   const [googleAccounts, setGoogleAccounts] = useState<Account[]>([]);
   const [githubAccounts, setGithubAccounts] = useState<Account[]>([]);
 
@@ -14,15 +16,25 @@ export default function UserAccount() {
   }, []);
 
   const getGoogleAccounts = () => {
-    accountAPI.getGoogleAccounts().then((res) => {
-      setGoogleAccounts(res.data);
-    });
+    accountAPI
+      .getGoogleAccounts()
+      .then((res) => {
+        setGoogleAccounts(res.data);
+      })
+      .catch((err) => {
+        showAlert(err, 'error');
+      });
   };
 
   const getGithubAccounts = () => {
-    accountAPI.getGithubAccounts().then((res) => {
-      setGithubAccounts(res.data);
-    });
+    accountAPI
+      .getGithubAccounts()
+      .then((res) => {
+        setGithubAccounts(res.data);
+      })
+      .catch((err) => {
+        showAlert(err, 'error');
+      });
   };
 
   const connectGoogleAccount = () => {
@@ -102,7 +114,7 @@ export default function UserAccount() {
 
   return (
     <>
-      <div className="flex flex-col gap-6 rounded-2xl border border-gray-200 p-5 lg:items-start lg:justify-between lg:p-6 dark:border-gray-800">
+      <div className="mt-6 flex flex-col gap-6 rounded-2xl border border-gray-200 p-5 lg:items-start lg:justify-between lg:p-6 dark:border-gray-800">
         <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90">Accounts</h4>
 
         <div className="flex w-full flex-col gap-6 rounded-2xl border border-gray-200 p-5 lg:p-6 dark:border-gray-800">

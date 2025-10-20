@@ -10,25 +10,26 @@ import { SPRING_BASE_URL } from '../../utils/utils';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
+import { LoginReq } from '../../model/user/LoginReq';
+import { useAlert } from '../../service/alert-service';
 
 const validationSchema = yup.object().shape({
   username: yup.string().required('Username is required').min(3, 'Username should have at least 3 characters'),
   password: yup.string().required('Password is required').min(6, 'Password should be at least 6 character')
 });
 
-type FormData = yup.InferType<typeof validationSchema>;
-
-export default function SignInForm() {
+export default function ForgotPasswordForm() {
   const [loggedIn, setLoggedIn] = useState(false);
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
+  const { showAlert } = useAlert();
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting, isValid }
-  } = useForm<FormData>({
+  } = useForm<LoginReq>({
     resolver: yupResolver(validationSchema),
     defaultValues: {
       username: '',
@@ -42,14 +43,16 @@ export default function SignInForm() {
     setLoggedIn(loggedIn ? true : false);
   }, []);
 
-  const login = (data: FormData) => {
-    authAPI
+  const login = async (data: LoginReq) => {
+    return authAPI
       .login(data)
       .then((res) => {
         setTokens(res.data.access_token, res.data.refresh_token);
         navigate('/');
       })
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        showAlert(err.response.data.message, 'error');
+      });
   };
 
   const loginGoogle = () => {
@@ -192,7 +195,7 @@ export default function SignInForm() {
                     Username <span className="text-error-500">*</span>{' '}
                   </Label>
                   <Input type="text" id="username" placeholder="Enter your username" {...register('username')} />
-                  {errors.username && <p className="text-error-500 mt-1 text-sm">{errors.username.message}</p>}
+                  <p className="text-error-500 h-1 py-1 text-sm">{errors.username?.message ?? ''}</p>
                 </div>
                 <div>
                   <Label htmlFor="password">
@@ -216,7 +219,7 @@ export default function SignInForm() {
                       )}
                     </span>
                   </div>
-                  {errors.password && <p className="text-error-500 mt-1 text-sm">{errors.password.message}</p>}
+                  <p className="text-error-500 h-1 py-1 text-sm">{errors.password?.message ?? ''}</p>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -226,7 +229,7 @@ export default function SignInForm() {
                     </span>
                   </div>
                   <Link
-                    to="/reset-password"
+                    to="/forgot-password"
                     className="text-brand-500 hover:text-brand-600 dark:text-brand-400 text-sm"
                   >
                     Forgot password?
@@ -238,7 +241,7 @@ export default function SignInForm() {
                   disabled={!isValid || isSubmitting}
                   className="bg-brand-500 shadow-theme-xs hover:bg-brand-600 flex w-full items-center justify-center rounded-lg px-4 py-3 text-sm font-medium text-white transition disabled:opacity-50"
                 >
-                  {isSubmitting ? 'Signing In...' : 'Sign In'}
+                  Sign In
                 </button>
               </div>
             </form>

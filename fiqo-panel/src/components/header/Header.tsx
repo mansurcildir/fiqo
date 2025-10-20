@@ -76,8 +76,8 @@ const Header: React.FC<HeaderProps> = ({ onClick, onToggle }) => {
           </button>
 
           <Link to="/" className="lg:hidden">
-            <img className="dark:hidden" src="./images/logo/logo.png" alt="Logo" />
-            <img className="hidden dark:block" src="./images/logo/logo.png" alt="Logo" />
+            <img className="dark:hidden" src="./images/logo/logo-dark.png" alt="Logo" />
+            <img className="hidden dark:block" src="./images/logo/logo-light.png" alt="Logo" />
           </Link>
 
           <button

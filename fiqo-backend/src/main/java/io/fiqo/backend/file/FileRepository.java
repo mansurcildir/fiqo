@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface FileRepository extends JpaRepository<File, Long> {
   @NotNull
-  List<File> findAllByPathStartingWith(@NotNull String path);
+  List<File> findAllByPathStartingWithAndUserUuid(@NotNull String path, @NotNull UUID userId);
 
   @NotNull
   Optional<File> findByPathAndUserUuid(@NotNull String path, @NotNull UUID userId);

@@ -1,5 +1,6 @@
 package io.fiqo.backend.auth;
 
+import static io.fiqo.backend.auth.AuthUtil.generateEmail;
 import static io.fiqo.backend.auth.AuthUtil.generateRandomUsername;
 
 import io.fiqo.backend.account.Account;
@@ -37,6 +38,7 @@ public class GoogleAuthService implements OAuthService {
 
     final String subjectId = userInfo.sub();
     final String username = generateRandomUsername();
+    final String email = generateEmail(username);
     final String accountEmail = Objects.requireNonNull(userInfo.email());
     final String avatarUrl = userInfo.avatarUrl();
 
@@ -50,7 +52,7 @@ public class GoogleAuthService implements OAuthService {
     }
 
     final UserRegister userRegister =
-        UserRegister.builder().email(accountEmail).username(username).password(null).build();
+        UserRegister.builder().email(email).username(username).password(null).build();
 
     final AuthResponse authResponse = this.authService.register(userRegister);
     final UUID userUuid = this.jwtUtil.getUserUuidFromAccessToken(authResponse.accessToken());

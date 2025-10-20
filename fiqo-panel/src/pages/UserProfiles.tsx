@@ -32,7 +32,7 @@ export default function UserProfiles() {
         setUserInfo(res.data);
       })
       .catch((err) => {
-        showAlert(err, 'error');
+        showAlert(err.response.data.message, 'error');
       });
   };
 
@@ -47,7 +47,7 @@ export default function UserProfiles() {
         setAvatarSrc(`data:image/png;base64,${base64}`);
       })
       .catch((err) => {
-        showAlert(err, 'error');
+        showAlert(err.response.data.message, 'error');
       });
   };
 

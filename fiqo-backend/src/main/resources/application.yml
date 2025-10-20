@@ -102,7 +102,7 @@ spring:
 
   mail:
     host: ${SMTP_HOST:YOUR_SMTP_HOST}
-    port: ${SMTP_PORT:YOUR_SMTP_PORT}
+    port: ${SMTP_PORT:537}
     username: ${SENDER_EMAIL:YOUR_SENDER_EMAIL}
     password: ${SENDER_EMAIL_PASSWORD:YOUR_SENDER_EMAIL_PASSWORD}
     properties:

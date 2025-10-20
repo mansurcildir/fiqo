@@ -22,7 +22,7 @@ export default function UserAccount() {
         setGoogleAccounts(res.data);
       })
       .catch((err) => {
-        showAlert(err, 'error');
+        showAlert(err.response.data.message, 'error');
       });
   };
 
@@ -33,7 +33,7 @@ export default function UserAccount() {
         setGithubAccounts(res.data);
       })
       .catch((err) => {
-        showAlert(err, 'error');
+        showAlert(err.response.data.message, 'error');
       });
   };
 
@@ -108,7 +108,7 @@ export default function UserAccount() {
         window.location.href = '/profile';
       })
       .catch((err) => {
-        console.log(err.response.data);
+        showAlert(err.response.data.message, 'error');
       });
   };
 

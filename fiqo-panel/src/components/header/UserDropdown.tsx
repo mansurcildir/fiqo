@@ -36,7 +36,7 @@ export default function UserDropdown({ userInfo }: Props) {
         setAvatarSrc(`data:image/png;base64,${base64}`);
       })
       .catch((err) => {
-        showAlert(err, 'error');
+        showAlert(err.response.data.message, 'error');
       });
   };
 
@@ -51,7 +51,7 @@ export default function UserDropdown({ userInfo }: Props) {
         navigate('/signin');
       })
       .catch((err) => {
-        showAlert(err, 'error');
+        showAlert(err.response.data.message, 'error');
       });
   };
 

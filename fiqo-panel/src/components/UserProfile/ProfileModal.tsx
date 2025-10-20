@@ -72,7 +72,7 @@ export default function ProfileModal({ userInfo, fetchProfile, isOpen, closeModa
         showAlert(res.message, 'success', 3000);
       })
       .catch((err) => {
-        showAlert(err, 'error');
+        showAlert(err.response.data.message, 'error');
       });
   };
 

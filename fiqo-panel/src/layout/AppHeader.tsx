@@ -64,7 +64,7 @@ const AppHeader: React.FC = () => {
           });
         })
         .catch((err) => {
-          showAlert(err, 'error');
+          showAlert(err.response.data.message, 'error');
         });
     };
 

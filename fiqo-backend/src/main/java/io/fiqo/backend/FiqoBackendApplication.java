@@ -15,7 +15,7 @@ public class FiqoBackendApplication {
     log.warn("fiqo-backend started successfully!");
   }
 
-  static void main(final @NotNull String[] args) {
+  public static void main(final @NotNull String[] args) {
     SpringApplication.run(FiqoBackendApplication.class, args);
   }
 }

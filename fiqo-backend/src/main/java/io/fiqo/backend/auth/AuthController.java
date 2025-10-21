@@ -7,11 +7,11 @@ import io.fiqo.backend.auth.dto.ResetPasswordForm;
 import io.fiqo.backend.mail.EmailForm;
 import io.fiqo.backend.result.ResponseFactory;
 import io.fiqo.backend.result.Result;
-import io.fiqo.backend.security.TemporaryTokenStore;
 import io.fiqo.backend.user.dto.AuthResponse;
 import io.fiqo.backend.user.dto.UserDetails;
 import io.fiqo.backend.user.dto.UserLogin;
 import io.fiqo.backend.user.dto.UserRegister;
+import io.fiqo.backend.util.JwtUtil;
 import io.fiqo.backend.verification.VerificationService;
 import io.fiqo.backend.verification.VerificationType;
 import jakarta.validation.Valid;
@@ -21,12 +21,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -36,7 +36,7 @@ public class AuthController {
 
   private final @NotNull AuthService authService;
   private final @NotNull ResponseFactory responseFactory;
-  private final @NotNull TemporaryTokenStore tokenStore;
+  private final @NotNull JwtUtil jwtUtil;
   private final @NotNull VerificationService verificationService;
 
   @PostMapping("/login")
@@ -97,10 +97,10 @@ public class AuthController {
         .body(this.responseFactory.success(HttpStatus.OK.value(), "refreshed", authResponse));
   }
 
-  @GetMapping("/token/{sessionId}")
-  public @NotNull ResponseEntity<Result> getTokenFromSession(
-      @PathVariable final @NotNull String sessionId) {
-    final AuthResponse authResponse = this.tokenStore.get(sessionId);
+  @GetMapping("/token")
+  public @NotNull ResponseEntity<Result> getSessionToken(
+      @RequestParam final @NotNull String token) {
+    final AuthResponse authResponse = this.jwtUtil.getAuthResponseFromToken(token);
     return ResponseEntity.status(HttpStatus.OK)
         .body(this.responseFactory.success(HttpStatus.OK.value(), "tokensFetched", authResponse));
   }

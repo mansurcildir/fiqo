@@ -7,10 +7,10 @@
     <script>
       const frontendBaseUrl = window.location.origin;
       const params = new URLSearchParams(window.location.search);
-      const sessionId = params.get('session_id');
+      const token = params.get('token');
 
-      if (sessionId) {
-        fetch(`http://localhost:8080/v1/auth/token/${sessionId}`, {
+      if (token) {
+        fetch(`http://localhost:8080/v1/auth/token?token=${token}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'

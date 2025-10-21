@@ -4,9 +4,12 @@ import io.fiqo.backend.result.DataResult;
 import io.fiqo.backend.result.ResponseFactory;
 import io.fiqo.backend.result.Result;
 import java.util.HashMap;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.exception.ConstraintViolationException;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -21,6 +24,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
   private final @NotNull ResponseFactory responseFactory;
+
+  private static final Map<String, String> CONSTRAINT_FIELD_MAP =
+      Map.of(
+          "ux_user_email", "emailExists",
+          "ux_user_username", "usernameExists");
 
   @ExceptionHandler(Exception.class)
   public @NotNull ResponseEntity<Result> handleException(final @NotNull Exception ex) {
@@ -92,5 +100,18 @@ public class GlobalExceptionHandler {
     log.info(ex.getMessage());
     final Result result = this.responseFactory.error(HttpStatus.FORBIDDEN.value(), ex.getMessage());
     return new ResponseEntity<>(result, HttpStatus.FORBIDDEN);
+  }
+
+  @ExceptionHandler(DataIntegrityViolationException.class)
+  public ResponseEntity<Result> handleDataIntegrityViolationException(
+      final DataIntegrityViolationException ex) {
+    if (ex.getCause() instanceof ConstraintViolationException cve) {
+      final String field =
+          CONSTRAINT_FIELD_MAP.getOrDefault(cve.getConstraintName(), "duplicateField");
+
+      final Result result = this.responseFactory.error(HttpStatus.BAD_REQUEST.value(), field);
+      return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
+    }
+    throw ex;
   }
 }

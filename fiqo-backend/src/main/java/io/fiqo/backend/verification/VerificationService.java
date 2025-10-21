@@ -12,6 +12,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @RequiredArgsConstructor
 public class VerificationService {
+  @Value("${fiqo.panel-base-url}")
+  private String panelBaseUrl;
+
   private static final int EXPIRATION_MINUTE = 10;
 
   private final @NotNull MailService mailService;
@@ -45,6 +49,8 @@ public class VerificationService {
     verification.setUser(user);
 
     this.verificationRepository.save(verification);
-    this.mailService.sendPasswordRecovery(emailForm.email(), code);
+
+    final String text = this.panelBaseUrl + "/reset-password/" + code;
+    this.mailService.sendPasswordRecovery(emailForm.email(), text);
   }
 }

@@ -23,6 +23,10 @@ CREATE TABLE "user" (
     CONSTRAINT uq_user_uuid UNIQUE (uuid)
 );
 
+CREATE UNIQUE INDEX ux_user_username
+ON "user" (username)
+WHERE deleted = false;
+
 CREATE UNIQUE INDEX ux_user_email
 ON "user" (email)
 WHERE deleted = false;

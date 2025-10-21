@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,7 +37,7 @@ public class UserController {
         .body(this.responseFactory.success(HttpStatus.OK.value(), "profileFetched", userInfo));
   }
 
-  @PostMapping("/profile")
+  @PutMapping("/profile")
   public @NotNull ResponseEntity<Result> updatePersonalInfo(
       final @NotNull Authentication authentication,
       @Valid @RequestBody final @NotNull ProfileForm profileForm) {

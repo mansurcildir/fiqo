@@ -1,5 +1,6 @@
 package io.fiqo.backend.util;
 
+import io.fiqo.backend.user.dto.AuthResponse;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -107,5 +108,24 @@ public class JwtUtil {
   private @NotNull SecretKey getSignKey(final @NotNull String signKey) {
     final byte[] keyBytes = Decoders.BASE64.decode(signKey);
     return new SecretKeySpec(keyBytes, "HmacSHA256");
+  }
+
+  public @NotNull String generateTokenFromAuthResponse(final @NotNull AuthResponse response) {
+    return this.generateToken(
+        this.accessKey,
+        "auth_response",
+        Map.of(
+            "access_token", response.accessToken(),
+            "refresh_token", response.refreshToken()),
+        this.accessExpMin);
+  }
+
+  public @NotNull AuthResponse getAuthResponseFromToken(final @NotNull String token) {
+    final Claims claims = this.extractAllClaims(token, this.accessKey);
+
+    final String accessToken = claims.get("access_token", String.class);
+    final String refreshToken = claims.get("refresh_token", String.class);
+
+    return AuthResponse.builder().accessToken(accessToken).refreshToken(refreshToken).build();
   }
 }

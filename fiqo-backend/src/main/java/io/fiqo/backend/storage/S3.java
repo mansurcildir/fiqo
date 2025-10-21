@@ -18,11 +18,13 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 
+@Slf4j
 @RequiredArgsConstructor
 public class S3 implements StorageStrategy {
   private final @NotNull MinioClient minioClient;
@@ -77,10 +79,9 @@ public class S3 implements StorageStrategy {
 
     try {
       return this.listFile(path, files);
-    } catch (final Exception ignored) {
+    } catch (final Exception ex) {
+      return this.listFiles(path, files);
     }
-
-    return this.listFiles(path, files);
   }
 
   @Override

@@ -1,5 +1,6 @@
 package io.fiqo.backend.auth;
 
+import static io.fiqo.backend.auth.AuthUtil.generateEmail;
 import static io.fiqo.backend.auth.AuthUtil.generateRandomUsername;
 
 import io.fiqo.backend.account.Account;
@@ -50,7 +51,8 @@ public class GithubAuthService implements OAuthService {
   public @NotNull AuthResponse login(final @NotNull OAuthUserInfo userInfo) {
     final String subjectId = userInfo.sub();
     final String username = generateRandomUsername();
-    final String email = userInfo.email();
+    final String email = generateEmail(username);
+    final String accountEmail = Objects.requireNonNull(userInfo.email());
     final String accountUsername = Objects.requireNonNull(userInfo.username());
     final String avatarUrl = userInfo.avatarUrl();
 
@@ -59,7 +61,8 @@ public class GithubAuthService implements OAuthService {
             subjectId, AccountType.GITHUB.toString());
 
     if (accountOpt.isPresent()) {
-      final Account account = this.updateAccountInfo(accountOpt.get(), email, accountUsername);
+      final Account account =
+          this.updateAccountInfo(accountOpt.get(), accountEmail, accountUsername);
       return this.authService.createAuthResponse(account.getUser());
     }
 
@@ -70,7 +73,7 @@ public class GithubAuthService implements OAuthService {
     final UUID userUuid = this.jwtUtil.getUserUuidFromAccessToken(authResponse.accessToken());
 
     this.accountService.connectAccount(
-        userUuid, new AccountForm(subjectId, null, email, avatarUrl), AccountType.GITHUB);
+        userUuid, new AccountForm(subjectId, null, accountEmail, avatarUrl), AccountType.GITHUB);
 
     return authResponse;
   }

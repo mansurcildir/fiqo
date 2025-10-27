@@ -1,5 +1,6 @@
 package io.fiqo.backend.file;
 
+import io.fiqo.backend.exception.ForbiddenException;
 import io.fiqo.backend.file.dto.FileInfo;
 import io.fiqo.backend.result.ResponseFactory;
 import io.fiqo.backend.result.Result;
@@ -16,20 +17,24 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/v1/files")
 @RequiredArgsConstructor
 public class FileController {
 
+  private static final @NotNull String FILE_OPERATION_COPY = "copy";
+  private static final @NotNull String FILE_OPERATION_MOVE = "move";
+
   private final @NotNull ResponseFactory responseFactory;
   private final @NotNull FileService fileService;
 
-  @PutMapping
+  @PostMapping
   public @NotNull ResponseEntity<Result> uploadFile(
       final @NotNull Authentication authentication,
       @RequestParam final String path,
@@ -38,6 +43,20 @@ public class FileController {
 
     final UserDetails userDetails = (UserDetails) authentication.getPrincipal();
     this.fileService.uploadFile(userDetails.userUuid(), path, request.getInputStream());
+    return ResponseEntity.ok(this.responseFactory.success(HttpStatus.OK.value(), "fileUploaded"));
+  }
+
+  @PostMapping(
+      path = "multipart",
+      consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+  public @NotNull ResponseEntity<Result> uploadFile(
+      final @NotNull Authentication authentication,
+      @RequestParam final String path,
+      @RequestParam("file") final @NotNull MultipartFile file)
+      throws Exception {
+
+    final UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+    this.fileService.uploadFile(userDetails.userUuid(), path, file.getInputStream());
     return ResponseEntity.ok(this.responseFactory.success(HttpStatus.OK.value(), "fileUploaded"));
   }
 
@@ -81,5 +100,26 @@ public class FileController {
       this.fileService.removeFile(userDetails.userUuid(), path);
       return ResponseEntity.ok(this.responseFactory.success(HttpStatus.OK.value(), "fileRemoved"));
     }
+  }
+
+  @PostMapping("/paste")
+  public @NotNull ResponseEntity<Result> pasteFile(
+      final @NotNull Authentication authentication,
+      @RequestParam final String sourcePath,
+      @RequestParam final String targetPath,
+      @RequestParam final String action)
+      throws Exception {
+
+    final UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+
+    if (FILE_OPERATION_COPY.equals(action)) {
+      this.fileService.copyFile(userDetails.userUuid(), sourcePath, targetPath);
+      return ResponseEntity.ok(this.responseFactory.success(HttpStatus.OK.value(), "fileCopied"));
+    } else if (FILE_OPERATION_MOVE.equals(action)) {
+      this.fileService.pasteFile(userDetails.userUuid(), sourcePath, targetPath);
+      return ResponseEntity.ok(this.responseFactory.success(HttpStatus.OK.value(), "fileMoved"));
+    }
+
+    throw new ForbiddenException();
   }
 }

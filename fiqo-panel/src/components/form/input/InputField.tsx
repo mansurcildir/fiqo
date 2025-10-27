@@ -1,6 +1,7 @@
-import type React from 'react';
-import type { FC } from 'react';
+import React, { type ForwardRefRenderFunction } from 'react';
+// ForwardRefRenderFunction tipini içeri aktardık
 
+// InputProps arayüzünüz aynı kalabilir
 interface InputProps {
   type?: 'text' | 'number' | 'email' | 'password' | 'date' | 'time' | string;
   id?: string;
@@ -8,9 +9,10 @@ interface InputProps {
   placeholder?: string;
   value?: string | number;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
   className?: string;
-  min?: string;
-  max?: string;
+  min?: string | number;
+  max?: string | number;
   step?: number;
   disabled?: boolean;
   success?: boolean;
@@ -18,22 +20,34 @@ interface InputProps {
   hint?: string;
 }
 
-const Input: FC<InputProps> = ({
-  type = 'text',
-  id,
-  name,
-  placeholder,
-  value,
-  onChange,
-  className = '',
-  min,
-  max,
-  step,
-  disabled = false,
-  success = false,
-  error = false,
-  hint
-}) => {
+// ----------------------------------------------------------------------
+// Bileşen tipini düzeltme
+// ----------------------------------------------------------------------
+// ForwardRefRenderFunction, props ve ref alan fonksiyonlar için doğru tiptir.
+const InputBase: ForwardRefRenderFunction<HTMLInputElement, InputProps> = (
+  // Bileşen artık iki argüman alıyor: props ve ref
+  {
+    type = 'text',
+    id,
+    name,
+    placeholder,
+    value,
+    onChange,
+    onBlur,
+    className = '',
+    min,
+    max,
+    step,
+    disabled = false,
+    success = false,
+    error = false,
+    hint
+  },
+  ref // 👈 İkinci argüman: ref
+) => {
+  // TypeScript hatasını düzelten temel değişiklik burasıdır.
+  // InputBase artık tek bir props objesi yerine (props, ref) ikilisini bekler.
+
   let inputClasses = ` h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3  dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 ${className}`;
 
   if (disabled) {
@@ -55,11 +69,13 @@ const Input: FC<InputProps> = ({
         placeholder={placeholder}
         value={value}
         onChange={onChange}
+        onBlur={onBlur}
         min={min}
         max={max}
         step={step}
         disabled={disabled}
         className={inputClasses}
+        ref={ref} // 👈 ref, DOM öğesine iletildi
       />
 
       {hint && (
@@ -70,5 +86,8 @@ const Input: FC<InputProps> = ({
     </div>
   );
 };
+
+// forwardRef kullanımı doğru kalır.
+const Input = React.forwardRef<HTMLInputElement, InputProps>(InputBase);
 
 export default Input;

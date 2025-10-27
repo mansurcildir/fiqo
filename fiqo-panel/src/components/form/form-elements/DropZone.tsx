@@ -1,11 +1,38 @@
 import ComponentCard from '../../common/ComponentCard';
 import { useDropzone } from 'react-dropzone';
+import { useState } from 'react';
+import { userAPI } from '../../../service/user-service';
+import Button from '../../ui/button/Button';
+import { useAlert } from '../../../service/alert-service';
 // import Dropzone from "react-dropzone";
 
 const DropzoneComponent: React.FC = () => {
+  const [file, setFile] = useState<File | null>(null);
+  const { showAlert } = useAlert();
+
   const onDrop = (acceptedFiles: File[]) => {
-    console.log('Files dropped:', acceptedFiles);
-    // Handle file uploads here
+    if (acceptedFiles && acceptedFiles.length > 0) {
+      setFile(acceptedFiles[0]);
+    }
+  };
+
+  const uploadAvatar = async () => {
+    if (!file) {
+      showAlert('You should choose a file!', 'error');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    userAPI
+      .uploadAvatar(formData)
+      .then(() => {
+        window.location.href = '/profile';
+      })
+      .catch((err) => {
+        showAlert(err.response.data.message, 'error');
+      });
   };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -18,7 +45,7 @@ const DropzoneComponent: React.FC = () => {
     }
   });
   return (
-    <ComponentCard title="Dropzone">
+    <ComponentCard title="Upload Avatar">
       <div className="dark:hover:border-brand-500 hover:border-brand-500 cursor-pointer rounded-xl border border-dashed border-gray-300 transition dark:border-gray-700">
         <form
           {...getRootProps()}
@@ -62,8 +89,15 @@ const DropzoneComponent: React.FC = () => {
             </span>
 
             <span className="text-theme-sm text-brand-500 font-medium underline">Browse File</span>
+
+            {file && <div className="mt-4 text-sm text-gray-700 dark:text-gray-300">{file.name}</div>}
           </div>
         </form>
+      </div>
+      <div className="mt-6 flex items-center gap-3 px-2 lg:justify-end">
+        <Button className="ml-auto" size="sm" onClick={uploadAvatar} disabled={!file}>
+          Upload
+        </Button>
       </div>
     </ComponentCard>
   );

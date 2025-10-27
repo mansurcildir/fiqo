@@ -19,8 +19,8 @@
   <description>backend of fiqo-backend</description>
 
   <properties>
-    <maven.compiler.source>21</maven.compiler.source>
-    <maven.compiler.target>21</maven.compiler.target>
+    <maven.compiler.source>25</maven.compiler.source>
+    <maven.compiler.target>25</maven.compiler.target>
     <maven.min.version>3.8.5</maven.min.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <checkstyle.config.location>config/checkstyle.xml</checkstyle.config.location>
@@ -36,7 +36,7 @@
     <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
     <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
     <spotbugs-maven-plugin.version>4.9.6.0</spotbugs-maven-plugin.version>
-    <fmt-maven-plugin.version>2.27</fmt-maven-plugin.version>
+    <fmt-maven-plugin.version>2.29</fmt-maven-plugin.version>
     <maven-enforcer-plugin.version>3.6.1</maven-enforcer-plugin.version>
     <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -46,7 +46,6 @@
     <checkstyle.version>10.26.1</checkstyle.version>
     <spotbugs.version>4.9.6</spotbugs.version>
   </properties>
-
 
   <dependencies>
     <!-- Compile ########################################################### -->
@@ -63,6 +62,10 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.micrometer</groupId>
+      <artifactId>micrometer-registry-prometheus</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>

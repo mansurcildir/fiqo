@@ -2,5 +2,13 @@ export interface UserInfo {
   uuid: string;
   username: string;
   email: string;
-  totalSize: number;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  bio: string;
+  facebookUrl: string;
+  xUrl: string;
+  linkedinUrl: string;
+  instagramUrl: string;
+  totalFileSize: number;
 }

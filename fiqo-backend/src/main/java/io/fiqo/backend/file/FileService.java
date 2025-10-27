@@ -58,8 +58,7 @@ public class FileService {
       final @NotNull String hashHex,
       final long size) {
 
-    final String path = userUuid + "/" + relativePath;
-    final Optional<File> file = this.fileRepository.findByPathAndUserUuid(path, userUuid);
+    final Optional<File> file = this.fileRepository.findByPathAndUserUuid(relativePath, userUuid);
 
     if (file.isEmpty()) {
       this.createFile(userUuid, relativePath, hashHex, size);
@@ -67,7 +66,7 @@ public class FileService {
       this.updateFile(file.get(), hashHex, size);
     }
 
-    this.userRepository.updateTotalSizeByUuid(userUuid, size);
+    this.userRepository.updateTotalFileSizeByUuid(userUuid, size);
   }
 
   private void createFile(
@@ -77,8 +76,6 @@ public class FileService {
       final long size) {
     final String name = Path.of(relativePath).getFileName().toString();
     final String extension = FilenameUtils.getExtension(relativePath);
-
-    final String path = userUuid + "/" + relativePath;
 
     final User user =
         this.userRepository
@@ -90,7 +87,7 @@ public class FileService {
             .uuid(UUID.randomUUID())
             .name(name)
             .extension(extension)
-            .path(path)
+            .path(relativePath)
             .digest(SHA_256_PREF + ":" + hashHex)
             .size(size)
             .user(user)
@@ -108,14 +105,11 @@ public class FileService {
     this.fileRepository.save(file);
   }
 
-  public byte[] downloadFile(final @NotNull UUID userUuid, final @NotNull String path)
+  public byte[] downloadFile(final @NotNull UUID userUuid, final @NotNull String relativePath)
       throws Exception {
-    final File file =
-        this.fileRepository
-            .findByPathAndUserUuid(path, userUuid)
-            .orElseThrow(() -> new ItemNotFoundException("fileNotFound"));
 
-    return this.storageStrategy.download(file.getPath());
+    final String path = userUuid + "/" + relativePath;
+    return this.storageStrategy.download(path);
   }
 
   public void removeFile(final @NotNull UUID userUuid, final @NotNull String relativePath)
@@ -124,7 +118,7 @@ public class FileService {
     final String path = userUuid + "/" + relativePath;
 
     this.storageStrategy.removeFile(path);
-    this.fileRepository.deleteAllByPathStartingWithAndUserUuid(path, userUuid);
+    this.fileRepository.deleteAllByPathStartingWithAndUserUuid(relativePath, userUuid);
   }
 
   public void removeFiles(final @NotNull UUID userUuid, final @NotNull String relativePath)
@@ -139,9 +133,37 @@ public class FileService {
   public @NotNull List<FileInfo> listFiles(
       final @NotNull UUID userUuid, final @NotNull String relativePath) {
 
-    final String path = userUuid + "/" + relativePath;
-    return this.fileRepository.findAllByPathStartingWith(path).stream()
+    return this.fileRepository.findAllByPathStartingWithAndUserUuid(relativePath, userUuid).stream()
         .map(this.fileConverter::toFileInfo)
         .toList();
+  }
+
+  public void copyFile(
+      final @NotNull UUID userUuid,
+      final @NotNull String sourceRelativePath,
+      final @NotNull String targetRelativePath)
+      throws Exception {
+
+    final String sourcePath = userUuid + "/" + sourceRelativePath;
+    final String targetPath = userUuid + "/" + targetRelativePath;
+
+    final File file =
+        this.fileRepository
+            .findByPathAndUserUuid(sourceRelativePath, userUuid)
+            .orElseThrow(() -> new ItemNotFoundException("fileNotFound"));
+
+    this.createFile(userUuid, targetRelativePath, file.getDigest(), file.getSize());
+    this.fileRepository.save(file);
+    this.storageStrategy.copyFile(sourcePath, targetPath);
+  }
+
+  public void pasteFile(
+      final @NotNull UUID userUuid,
+      final @NotNull String sourceRelativePath,
+      final @NotNull String targetRelativePath)
+      throws Exception {
+
+    this.copyFile(userUuid, sourceRelativePath, targetRelativePath);
+    this.removeFile(userUuid, sourceRelativePath);
   }
 }

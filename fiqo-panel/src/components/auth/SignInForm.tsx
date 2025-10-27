@@ -6,15 +6,36 @@ import Input from '../form/input/InputField';
 import Checkbox from '../form/input/Checkbox';
 import { authAPI } from '../../service/auth-service';
 import { setTokens } from '../../service/storage-manager';
+import { SPRING_BASE_URL } from '../../utils/utils';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+import { LoginReq } from '../../model/user/LoginReq';
+import { useAlert } from '../../service/alert-service';
 
-export default function SignInForm() {
+const validationSchema = yup.object().shape({
+  username: yup.string().required('Username is required').min(3, 'Username should have at least 3 characters'),
+  password: yup.string().required('Password is required').min(6, 'Password should be at least 6 character')
+});
+
+export default function ForgotPasswordForm() {
   const [loggedIn, setLoggedIn] = useState(false);
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
-  const [form, setForm] = useState({
-    username: '',
-    password: ''
+  const { showAlert } = useAlert();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting, isValid }
+  } = useForm<LoginReq>({
+    resolver: yupResolver(validationSchema),
+    defaultValues: {
+      username: '',
+      password: ''
+    },
+    mode: 'all'
   });
 
   useEffect(() => {
@@ -22,20 +43,16 @@ export default function SignInForm() {
     setLoggedIn(loggedIn ? true : false);
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const login = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    authAPI
-      .login(form)
+  const login = async (data: LoginReq) => {
+    return authAPI
+      .login(data)
       .then((res) => {
         setTokens(res.data.access_token, res.data.refresh_token);
         navigate('/');
       })
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        showAlert(err.response.data.message, 'error');
+      });
   };
 
   const loginGoogle = () => {
@@ -47,7 +64,7 @@ export default function SignInForm() {
     const frontendBaseUrl = window.location.origin;
 
     window.open(
-      'http://localhost:8080/oauth2/authorization/google?action=login',
+      `${SPRING_BASE_URL}/oauth2/authorization/google?action=login`,
       'googleLogin',
       `width=${width},height=${height},left=${left},top=${top},resizable,scrollbars`
     );
@@ -120,9 +137,10 @@ export default function SignInForm() {
           <div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5">
               <button
-                onClick={() => loginGoogle()}
+                onClick={loginGoogle}
                 className="inline-flex items-center justify-center gap-3 rounded-lg bg-gray-100 px-7 py-3 text-sm font-normal text-gray-700 transition-colors hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10"
               >
+                {/* Google SVG Kodu */}
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path
                     d="M18.7511 10.1944C18.7511 9.47495 18.6915 8.94995 18.5626 8.40552H10.1797V11.6527H15.1003C15.0011 12.4597 14.4654 13.675 13.2749 14.4916L13.2582 14.6003L15.9087 16.6126L16.0924 16.6305C17.7788 15.1041 18.7511 12.8583 18.7511 10.1944Z"
@@ -144,9 +162,10 @@ export default function SignInForm() {
                 Sign in with Google
               </button>
               <button
-                onClick={() => loginGithub()}
+                onClick={loginGithub}
                 className="inline-flex items-center justify-center gap-3 rounded-lg bg-gray-100 px-7 py-3 text-sm font-normal text-gray-700 transition-colors hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10"
               >
+                {/* Github SVG Kodu */}
                 <svg
                   width="21"
                   height="20"
@@ -168,19 +187,19 @@ export default function SignInForm() {
                 <span className="bg-white p-2 text-gray-400 sm:px-5 sm:py-2 dark:bg-gray-900">Or</span>
               </div>
             </div>
-            <form onSubmit={login}>
+
+            <form onSubmit={handleSubmit(login)}>
               <div className="space-y-6">
                 <div>
                   <Label htmlFor="username">
                     Username <span className="text-error-500">*</span>{' '}
                   </Label>
-                  <Input
-                    type="text"
-                    id="username"
-                    name="username"
-                    placeholder="Enter your username"
-                    onChange={handleChange}
-                  />
+                  <Input type="text" id="username" placeholder="Enter your username" {...register('username')} />
+                  <p
+                    className={`text-error-500 h-1 py-1 text-sm transition-all duration-300 ease-in-out ${errors.username ? 'opacity-100' : 'opacity-0'}`}
+                  >
+                    {errors.username?.message ?? ' '}
+                  </p>
                 </div>
                 <div>
                   <Label htmlFor="password">
@@ -191,8 +210,7 @@ export default function SignInForm() {
                       placeholder="Enter your password"
                       type={showPassword ? 'text' : 'password'}
                       id="password"
-                      name="password"
-                      onChange={handleChange}
+                      {...register('password')}
                     />
                     <span
                       onClick={() => setShowPassword(!showPassword)}
@@ -205,6 +223,11 @@ export default function SignInForm() {
                       )}
                     </span>
                   </div>
+                  <p
+                    className={`text-error-500 h-1 py-1 text-sm transition-all duration-300 ease-in-out ${errors.password ? 'opacity-100' : 'opacity-0'}`}
+                  >
+                    {errors.password?.message ?? ' '}
+                  </p>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -214,20 +237,20 @@ export default function SignInForm() {
                     </span>
                   </div>
                   <Link
-                    to="/reset-password"
+                    to="/forgot-password"
                     className="text-brand-500 hover:text-brand-600 dark:text-brand-400 text-sm"
                   >
                     Forgot password?
                   </Link>
                 </div>
-                <div>
-                  <button
-                    type="submit"
-                    className="bg-brand-500 shadow-theme-xs hover:bg-brand-600 flex w-full items-center justify-center rounded-lg px-4 py-3 text-sm font-medium text-white transition"
-                  >
-                    Sign In
-                  </button>
-                </div>
+
+                <button
+                  type="submit"
+                  disabled={!isValid || isSubmitting}
+                  className="bg-brand-500 shadow-theme-xs hover:bg-brand-600 flex w-full items-center justify-center rounded-lg px-4 py-3 text-sm font-medium text-white transition disabled:opacity-50"
+                >
+                  Sign In
+                </button>
               </div>
             </form>
 

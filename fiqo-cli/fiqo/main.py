@@ -91,7 +91,7 @@ def remove(
 
 
 @app.command()
-def ls(path: str = typer.Argument("./")):
+def ls(path: str = typer.Argument("")):
     try:
         result = client.list(path)
         for file in result:

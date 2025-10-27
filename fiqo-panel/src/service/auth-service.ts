@@ -7,6 +7,10 @@ import { SPRING_BASE_URL } from '../utils/utils';
 import axios from 'axios';
 import { clearTokens, getAccessToken, getAllTokens, getRefreshToken } from './storage-manager';
 import { isTokenExpired } from './token-decoder';
+import { ResetPasswordForm } from '../model/user/ResetPasswordForm';
+import { Result } from '../model/result/Result';
+import { EmailForm } from '../model/user/EmailForm';
+import { RecoverPasswordForm } from '../model/user/RecoverPasswordForm';
 
 export const authAPI = {
   login: async (body: LoginReq): Promise<DataResult<LoginRes>> => {
@@ -20,6 +24,7 @@ export const authAPI = {
   },
 
   logout: async (): Promise<void> => {
+    await authAPI.authorize();
     const accessToken = getAccessToken();
     await axios.get(`${SPRING_BASE_URL}/v1/auth/logout`, {
       headers: {
@@ -66,5 +71,27 @@ export const authAPI = {
         authAPI.unAuthorize();
       }
     }
+  },
+
+  resetPassword: async (body: ResetPasswordForm): Promise<Result> => {
+    await authAPI.authorize();
+    const accessToken = getAccessToken();
+    const response = await axios.put(`${SPRING_BASE_URL}/v1/auth/reset-password`, body, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    return response.data;
+  },
+
+  sendVerificationEmail: async (body: EmailForm): Promise<Result> => {
+    const response = await axios.post(`${SPRING_BASE_URL}/v1/auth/password-recovery`, body);
+    return response.data;
+  },
+
+  recoverPassword: async (body: RecoverPasswordForm): Promise<Result> => {
+    const response = await axios.put(`${SPRING_BASE_URL}/v1/auth/recover-password`, body);
+    return response.data;
   }
 };

@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { DropdownItem } from '../ui/dropdown/DropdownItem';
 import { Dropdown } from '../ui/dropdown/Dropdown';
 import { authAPI } from '../../service/auth-service';
 import { useNavigate } from 'react-router';
 import { UserInfo } from '../../model/user/UserInfo';
+import { useAlert } from '../../service/alert-service';
+import { userAPI } from '../../service/user-service';
 
 interface Props {
   userInfo: UserInfo | null;
@@ -12,6 +14,8 @@ interface Props {
 export default function UserDropdown({ userInfo }: Props) {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
+  const { showAlert } = useAlert();
+  const [avatarSrc, setAvatarSrc] = useState<string>('/images/user/user-01.jpg');
 
   function toggleDropdown() {
     setIsOpen(!isOpen);
@@ -21,16 +25,41 @@ export default function UserDropdown({ userInfo }: Props) {
     setIsOpen(false);
   }
 
+  const getAvatar = async () => {
+    await userAPI
+      .getAvatar()
+      .then((buffer) => {
+        if (!buffer || buffer.byteLength === 0) {
+          return;
+        }
+        const base64 = btoa(new Uint8Array(buffer).reduce((data, byte) => data + String.fromCharCode(byte), ''));
+        setAvatarSrc(`data:image/png;base64,${base64}`);
+      })
+      .catch((err) => {
+        showAlert(err.response.data.message, 'error');
+      });
+  };
+
+  useEffect(() => {
+    getAvatar();
+  }, []);
+
   const logout = () => {
-    authAPI.logout();
-    navigate('/signin');
+    authAPI
+      .logout()
+      .then(() => {
+        navigate('/signin');
+      })
+      .catch((err) => {
+        showAlert(err.response.data.message, 'error');
+      });
   };
 
   return (
     <div className="relative">
       <button onClick={toggleDropdown} className="dropdown-toggle flex items-center text-gray-700 dark:text-gray-400">
         <span className="mr-3 h-11 w-11 overflow-hidden rounded-full">
-          <img src="/images/user/owner.jpg" alt="User" />
+          <img src={avatarSrc} alt="User" />
         </span>
 
         <span className="text-theme-sm mr-1 block font-medium">{userInfo?.username}</span>

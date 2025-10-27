@@ -52,22 +52,18 @@ public class OAuthSuccessHandler implements AuthenticationSuccessHandler {
   private final @NotNull JwtUtil jwtUtil;
   private final @NotNull OAuthService googleAuthService;
   private final @NotNull OAuthService githubAuthService;
-  private final @NotNull TemporaryTokenStore tokenStore;
   private final @NotNull OAuth2AuthorizedClientService authorizedClientService;
-
   private final @NotNull MessageSource messageSource;
 
   public OAuthSuccessHandler(
       @Qualifier("googleAuthService") final @NotNull OAuthService googleAuthService,
       @Qualifier("githubAuthService") final @NotNull OAuthService githubAuthService,
       final @NotNull JwtUtil jwtUtil,
-      final @NotNull TemporaryTokenStore tokenStore,
       final @NotNull OAuth2AuthorizedClientService authorizedClientService,
       final @NotNull MessageSource messageSource) {
     this.jwtUtil = jwtUtil;
     this.googleAuthService = googleAuthService;
     this.githubAuthService = githubAuthService;
-    this.tokenStore = tokenStore;
     this.authorizedClientService = authorizedClientService;
     this.messageSource = messageSource;
   }
@@ -81,11 +77,12 @@ public class OAuthSuccessHandler implements AuthenticationSuccessHandler {
 
     final HttpSession httpSession = request.getSession();
     final String action = (String) httpSession.getAttribute("action");
+    final String tokenFromSession = (String) httpSession.getAttribute("token");
     httpSession.removeAttribute("action");
+    httpSession.removeAttribute("token");
 
     final OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
     final String provider = oauthToken.getAuthorizedClientRegistrationId();
-
     final OAuth2User oAuth2User = oauthToken.getPrincipal();
     final Map<String, Object> attributes = oAuth2User.getAttributes();
     final String accessToken = this.extractAccessToken(oauthToken);
@@ -96,12 +93,11 @@ public class OAuthSuccessHandler implements AuthenticationSuccessHandler {
             : (String) attributes.get("email");
 
     final OAuthUserInfo userInfo = this.mapToOAuthUserInfo(attributes, provider, email);
-    final String sessionId = UUID.randomUUID().toString();
 
     final String redirectUrl =
         switch (action) {
-          case ACTION_LOGIN -> this.login(userInfo, provider, sessionId);
-          case ACTION_CONNECT -> this.connect(userInfo, provider, httpSession);
+          case ACTION_LOGIN -> this.login(userInfo, provider);
+          case ACTION_CONNECT -> this.connect(userInfo, provider, tokenFromSession);
           default -> throw new IllegalStateException("Unknown action: " + action);
         };
 
@@ -109,40 +105,39 @@ public class OAuthSuccessHandler implements AuthenticationSuccessHandler {
   }
 
   private @NotNull String login(
-      final @NotNull OAuthUserInfo userInfo,
-      final @NotNull String provider,
-      final @NotNull String sessionId) {
-
+      final @NotNull OAuthUserInfo userInfo, final @NotNull String provider) {
     try {
-      final AuthResponse authResponse;
+      final AuthResponse authResponse =
+          switch (provider) {
+            case PROVIDER_GOOGLE -> this.googleAuthService.login(userInfo);
+            case PROVIDER_GITHUB -> this.githubAuthService.login(userInfo);
+            default -> throw new IllegalStateException("Unknown provider: " + provider);
+          };
+
+      final String jwtToken = this.jwtUtil.generateTokenFromAuthResponse(authResponse);
 
       return switch (provider) {
-        case PROVIDER_GOOGLE -> {
-          authResponse = this.googleAuthService.login(userInfo);
-          this.tokenStore.put(sessionId, authResponse);
-          yield this.googleRedirectUriLogin
-              + "?session_id="
-              + URLEncoder.encode(sessionId, StandardCharsets.UTF_8);
-        }
-        case PROVIDER_GITHUB -> {
-          authResponse = this.githubAuthService.login(userInfo);
-          this.tokenStore.put(sessionId, authResponse);
-          yield this.githubRedirectUriLogin
-              + "?session_id="
-              + URLEncoder.encode(sessionId, StandardCharsets.UTF_8);
-        }
+        case PROVIDER_GOOGLE ->
+            this.googleRedirectUriLogin
+                + "?token="
+                + URLEncoder.encode(jwtToken, StandardCharsets.UTF_8);
+        case PROVIDER_GITHUB ->
+            this.githubRedirectUriLogin
+                + "?token="
+                + URLEncoder.encode(jwtToken, StandardCharsets.UTF_8);
         default -> throw new IllegalStateException("Unknown provider: " + provider);
       };
-    } catch (final @NotNull Exception ex) {
+    } catch (final Exception ex) {
       final String message =
-          Objects.requireNonNull(
-              this.messageSource.getMessage(
-                  ex.getMessage(), null, ex.getMessage(), Locale.getDefault()));
-      final String encodedError = URLEncoder.encode(message, StandardCharsets.UTF_8);
+          URLEncoder.encode(
+              Objects.requireNonNull(
+                  this.messageSource.getMessage(
+                      ex.getMessage(), null, ex.getMessage(), Locale.getDefault())),
+              StandardCharsets.UTF_8);
 
       return switch (provider) {
-        case PROVIDER_GOOGLE -> this.googleRedirectUriLogin + "?error=" + encodedError;
-        case PROVIDER_GITHUB -> this.githubRedirectUriLogin + "?error=" + encodedError;
+        case PROVIDER_GOOGLE -> this.googleRedirectUriLogin + "?error=" + message;
+        case PROVIDER_GITHUB -> this.githubRedirectUriLogin + "?error=" + message;
         default -> throw new IllegalStateException("Unknown provider: " + provider);
       };
     }
@@ -151,33 +146,37 @@ public class OAuthSuccessHandler implements AuthenticationSuccessHandler {
   private @NotNull String connect(
       final @NotNull OAuthUserInfo userInfo,
       final @NotNull String provider,
-      final @NotNull HttpSession httpSession) {
-
+      final @Nullable String tokenFromSession) {
     try {
-      final UUID userUuid =
-          this.jwtUtil.getUserUuidFromAccessToken((String) httpSession.getAttribute("token"));
+      if (tokenFromSession == null) {
+        throw new IllegalStateException("Missing token for connect");
+      }
+
+      final AuthResponse authResponse = this.jwtUtil.getAuthResponseFromToken(tokenFromSession);
+      final UUID userUuid = this.jwtUtil.getUserUuidFromAccessToken(authResponse.accessToken());
+
+      switch (provider) {
+        case PROVIDER_GOOGLE -> this.googleAuthService.connect(userUuid, userInfo);
+        case PROVIDER_GITHUB -> this.githubAuthService.connect(userUuid, userInfo);
+        default -> throw new IllegalStateException("Unknown provider: " + provider);
+      }
 
       return switch (provider) {
-        case PROVIDER_GOOGLE -> {
-          this.googleAuthService.connect(userUuid, userInfo);
-          yield this.googleRedirectUriConnect;
-        }
-        case PROVIDER_GITHUB -> {
-          this.githubAuthService.connect(userUuid, userInfo);
-          yield this.githubRedirectUriConnect;
-        }
+        case PROVIDER_GOOGLE -> this.googleRedirectUriConnect;
+        case PROVIDER_GITHUB -> this.githubRedirectUriConnect;
         default -> throw new IllegalStateException("Unknown provider: " + provider);
       };
-    } catch (final @NotNull Exception ex) {
+    } catch (final Exception ex) {
       final String message =
-          Objects.requireNonNull(
-              this.messageSource.getMessage(
-                  ex.getMessage(), null, ex.getMessage(), Locale.getDefault()));
-      final String encodedError = URLEncoder.encode(message, StandardCharsets.UTF_8);
+          URLEncoder.encode(
+              Objects.requireNonNull(
+                  this.messageSource.getMessage(
+                      ex.getMessage(), null, ex.getMessage(), Locale.getDefault())),
+              StandardCharsets.UTF_8);
 
       return switch (provider) {
-        case PROVIDER_GOOGLE -> this.googleRedirectUriConnect + "?error=" + encodedError;
-        case PROVIDER_GITHUB -> this.githubRedirectUriConnect + "?error=" + encodedError;
+        case PROVIDER_GOOGLE -> this.googleRedirectUriConnect + "?error=" + message;
+        case PROVIDER_GITHUB -> this.githubRedirectUriConnect + "?error=" + message;
         default -> throw new IllegalStateException("Unknown provider: " + provider);
       };
     }

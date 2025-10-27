@@ -1,8 +1,7 @@
 package io.fiqo.backend.user.dto;
 
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 
 @Builder
-public record UserLogin(@NotNull @NotEmpty String username, @NotNull @NotEmpty String password) {}
+public record UserLogin(@NotBlank String username, @NotBlank String password) {}

@@ -4,8 +4,16 @@ CREATE TABLE "user" (
     uuid                 UUID                        NOT NULL,
     username             VARCHAR(255)                NOT NULL,
     password             VARCHAR(255),
+    first_name           VARCHAR(255),
+    last_name            VARCHAR(255),
     email                VARCHAR(255)                NOT NULL,
-    total_size           BIGINT                      NOT NULL,
+    phone                VARCHAR(255),
+    facebook_url         VARCHAR(255),
+    x_url                VARCHAR(255),
+    linkedin_url         VARCHAR(255),
+    instagram_url        VARCHAR(255),
+    bio                  VARCHAR(255),
+    total_file_size      BIGINT                      NOT NULL,
     deleted              BOOLEAN DEFAULT FALSE       NOT NULL,
     created_at           TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     updated_at           TIMESTAMP WITHOUT TIME ZONE NOT NULL,
@@ -14,6 +22,10 @@ CREATE TABLE "user" (
     CONSTRAINT pk_user PRIMARY KEY (id),
     CONSTRAINT uq_user_uuid UNIQUE (uuid)
 );
+
+CREATE UNIQUE INDEX ux_user_username
+ON "user" (username)
+WHERE deleted = false;
 
 CREATE UNIQUE INDEX ux_user_email
 ON "user" (email)

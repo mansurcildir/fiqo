@@ -14,4 +14,6 @@ public interface StorageStrategy {
   void removeFiles(@NotNull String path) throws Exception;
 
   List<FileInfo> list(@NotNull String path) throws Exception;
+
+  void copyFile(@NotNull String sourcePath, @NotNull String targetPath) throws Exception;
 }

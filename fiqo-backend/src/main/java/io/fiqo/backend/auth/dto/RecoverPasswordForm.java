@@ -1,9 +1,6 @@
 package io.fiqo.backend.auth.dto;
 
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 
 public record RecoverPasswordForm(
-    @NotNull @NotEmpty String password,
-    @NotNull @NotEmpty String confirmPassword,
-    @NotNull @NotEmpty String code) {}
+    @NotBlank String password, @NotBlank String confirmPassword, @NotBlank String code) {}

@@ -1,6 +1,7 @@
 package io.fiqo.backend.storage;
 
 import io.fiqo.backend.file.dto.FileInfo;
+import io.minio.CopyObjectArgs;
 import io.minio.GetObjectArgs;
 import io.minio.ListObjectsArgs;
 import io.minio.MinioClient;
@@ -17,11 +18,13 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 
+@Slf4j
 @RequiredArgsConstructor
 public class S3 implements StorageStrategy {
   private final @NotNull MinioClient minioClient;
@@ -76,10 +79,20 @@ public class S3 implements StorageStrategy {
 
     try {
       return this.listFile(path, files);
-    } catch (final Exception ignored) {
+    } catch (final Exception ex) {
+      return this.listFiles(path, files);
     }
+  }
 
-    return this.listFiles(path, files);
+  @Override
+  public void copyFile(final @NotNull String sourcePath, final @NotNull String targetPath)
+      throws Exception {
+    this.minioClient.copyObject(
+        CopyObjectArgs.builder()
+            .source(io.minio.CopySource.builder().bucket(this.bucket).object(sourcePath).build())
+            .bucket(this.bucket)
+            .object(targetPath)
+            .build());
   }
 
   private @NotNull List<FileInfo> listFile(

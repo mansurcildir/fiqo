@@ -39,8 +39,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @RequiredArgsConstructor
 public class AuthService {
-  private static final @NotNull String SUBSCRIPTION_PLAN_FREE = "Free";
-
   private final @NotNull JwtUtil jwtUtil;
   private final @NotNull PasswordEncoder passwordEncoder;
   private final @NotNull UserRepository userRepository;
@@ -145,6 +143,8 @@ public class AuthService {
     user.setPassword(encodedPassword);
 
     this.userRepository.save(user);
+
+    this.verificationRepository.delete(verification);
   }
 
   public void resetPassword(

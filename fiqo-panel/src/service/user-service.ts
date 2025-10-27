@@ -5,6 +5,8 @@ import { SPRING_BASE_URL } from '../utils/utils';
 import axios from 'axios';
 import { getAccessToken } from './storage-manager';
 import { authAPI } from './auth-service';
+import { ProfileForm } from '../model/user/ProfileForm';
+import { Result } from '../model/result/Result';
 
 export const userAPI = {
   getProfile: async (): Promise<DataResult<UserInfo>> => {
@@ -16,6 +18,44 @@ export const userAPI = {
         'Content-Type': 'application/json'
       }
     });
+    return response.data;
+  },
+
+  updateProfile: async (body: ProfileForm): Promise<Result> => {
+    await authAPI.authorize();
+    const accessToken = getAccessToken();
+    const response = await axios.put(`${SPRING_BASE_URL}/v1/users/profile`, body, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    return response.data;
+  },
+
+  uploadAvatar: async (body: FormData) => {
+    await authAPI.authorize();
+    const accessToken = getAccessToken();
+    const response = await axios.post(`${SPRING_BASE_URL}/v1/users/avatar`, body, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+    return response.data;
+  },
+
+  getAvatar: async (): Promise<ArrayBuffer> => {
+    await authAPI.authorize();
+    const accessToken = getAccessToken();
+
+    const response = await axios.get(`${SPRING_BASE_URL}/v1/users/avatar`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      },
+      responseType: 'arraybuffer'
+    });
+
     return response.data;
   }
 };

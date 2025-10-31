@@ -3,5 +3,5 @@ PyJWT==2.10.1
 requests==2.32.3
 build==1.2.2.post1
 questionary==2.1.0
-python-dotenv==1.1.0
+python-dotenv==1.2.1
 rich==14.0.0

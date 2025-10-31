@@ -1,4 +1,4 @@
-typer==0.16.0
+typer==0.20.0
 PyJWT==2.10.1
 requests==2.32.3
 build==1.2.2.post1

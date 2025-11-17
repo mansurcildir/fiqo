@@ -9,7 +9,7 @@ import { usageAPI } from '../../service/usage-service';
 import { Usage } from '../../model/usage/Usage';
 import { getDay } from '../../utils/utils';
 
-export default function BarChart() {
+export default function StatsChart() {
   const [usages, setUsages] = useState<Usage[]>();
   const [series, setSeries] = useState<number[]>([0]);
 

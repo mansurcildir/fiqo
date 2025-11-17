@@ -22,7 +22,8 @@ export default function UserProfiles() {
     xUrl: '',
     linkedinUrl: '',
     instagramUrl: '',
-    totalFileSize: 0
+    totalFileSize: 0,
+    maxFileSize: 0
   });
 
   const fetchProfile = async () => {

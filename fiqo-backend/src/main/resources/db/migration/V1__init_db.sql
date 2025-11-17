@@ -1,4 +1,4 @@
--- User table
+-- user table
 CREATE TABLE "user" (
     id                   BIGSERIAL                   NOT NULL,
     uuid                 UUID                        NOT NULL,
@@ -14,6 +14,8 @@ CREATE TABLE "user" (
     instagram_url        VARCHAR(255),
     bio                  VARCHAR(255),
     total_file_size      BIGINT                      NOT NULL,
+    max_file_size        BIGINT                      NOT NULL,
+    daily_bandwidth      BIGINT                      NOT NULL,
     deleted              BOOLEAN DEFAULT FALSE       NOT NULL,
     created_at           TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     updated_at           TIMESTAMP WITHOUT TIME ZONE NOT NULL,
@@ -31,7 +33,7 @@ CREATE UNIQUE INDEX ux_user_email
 ON "user" (email)
 WHERE deleted = false;
 
--- Account table
+-- account table
 CREATE TABLE IF NOT EXISTS account (
     id                   BIGSERIAL                   NOT NULL,
     uuid                 UUID                        NOT NULL,
@@ -39,7 +41,7 @@ CREATE TABLE IF NOT EXISTS account (
     subject_id           VARCHAR(256),
     username             VARCHAR(256),
     email                VARCHAR(256),
-    user_id              BIGINT NOT NULL,
+    user_id              BIGINT                      NOT NULL,
     avatar_url           TEXT,
     deleted              BOOLEAN DEFAULT FALSE       NOT NULL,
     created_at           TIMESTAMP WITHOUT TIME ZONE NOT NULL,
@@ -128,3 +130,36 @@ CREATE TABLE verification (
     CONSTRAINT uq_verification_uuid UNIQUE (uuid),
     CONSTRAINT uq_verification_code UNIQUE (code)
 );
+
+-- notification table
+CREATE TABLE notification (
+    id                   BIGSERIAL                   NOT NULL,
+    uuid                 UUID                        NOT NULL,
+    user_id              BIGINT                      NOT NULL,
+    title                VARCHAR(255)                NOT NULL,
+    message              VARCHAR(255)                NOT NULL,
+    type                 VARCHAR(255)                NOT NULL,
+    read                 BOOLEAN DEFAULT FALSE       NOT NULL,
+    deleted              BOOLEAN DEFAULT FALSE       NOT NULL,
+    created_at           TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    updated_at           TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    deleted_at           TIMESTAMP WITHOUT TIME ZONE,
+    CONSTRAINT ch_notification CHECK (id > 0),
+    CONSTRAINT pk_notification PRIMARY KEY (id),
+    CONSTRAINT uq_notification_uuid UNIQUE (uuid)
+);
+
+-- daily Usage table
+CREATE TABLE daily_usage (
+    id                   BIGSERIAL                   NOT NULL,
+    uuid                 UUID                        NOT NULL,
+    user_id              BIGINT                      NOT NULL,
+    bandwidth            BIGINT                      NOT NULL,
+    created_at           TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    CONSTRAINT ch_daily_usage CHECK (id > 0),
+    CONSTRAINT pk_daily_usage PRIMARY KEY (id),
+    CONSTRAINT uq_daily_usage_uuid UNIQUE (uuid)
+);
+
+CREATE UNIQUE INDEX ux_daily_usage_day
+ON daily_usage (user_id, (date(created_at)));

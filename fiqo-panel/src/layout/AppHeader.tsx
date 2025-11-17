@@ -7,6 +7,8 @@ import UserDropdown from '../components/header/UserDropdown';
 import { userAPI } from '../service/user-service';
 import { useSidebar } from '../utils/utils';
 import { useAlert } from '../service/alert-service';
+import { notificationAPI } from '../service/notification-service';
+import { Notification } from '../model/notification/Notification';
 
 const AppHeader: React.FC = () => {
   const { showAlert } = useAlert();
@@ -22,12 +24,16 @@ const AppHeader: React.FC = () => {
     xUrl: '',
     linkedinUrl: '',
     instagramUrl: '',
-    totalFileSize: 0
+    totalFileSize: 0,
+    maxFileSize: 0
   });
 
+  const inputRef = useRef<HTMLInputElement>(null);
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
-
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [avatarSrc, setAvatarSrc] = useState<string>('/images/user/user-01.jpg');
   const { isMobileOpen, toggleSidebar, toggleMobileSidebar } = useSidebar();
+  const [notifying, setNotifying] = useState(false);
 
   const handleToggle = () => {
     if (window.innerWidth >= 1024) {
@@ -41,50 +47,68 @@ const AppHeader: React.FC = () => {
     setApplicationMenuOpen(!isApplicationMenuOpen);
   };
 
-  const inputRef = useRef<HTMLInputElement>(null);
+  const getAvatar = async () => {
+    await userAPI
+      .getAvatar()
+      .then((buffer) => {
+        if (!buffer || buffer.byteLength === 0) {
+          return;
+        }
+        const base64 = btoa(new Uint8Array(buffer).reduce((data, byte) => data + String.fromCharCode(byte), ''));
+        setAvatarSrc(`data:image/png;base64,${base64}`);
+      })
+      .catch((err) => {
+        showAlert(err.response.data.message, 'error');
+      });
+  };
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      userAPI
-        .getProfile()
-        .then((res) => {
-          setUserInfo({
-            uuid: res.data.uuid,
-            username: res.data.username,
-            email: res.data.email,
-            firstName: res.data.firstName,
-            lastName: res.data.lastName,
-            phone: res.data.phone,
-            bio: res.data.bio,
-            facebookUrl: res.data.facebookUrl,
-            xUrl: res.data.xUrl,
-            linkedinUrl: res.data.linkedinUrl,
-            instagramUrl: res.data.instagramUrl,
-            totalFileSize: res.data.totalFileSize
-          });
-        })
-        .catch((err) => {
-          showAlert(err.response.data.message, 'error');
+  const fetchNotifications = async () => {
+    notificationAPI.getNotifications().then((res) => {
+      setNotifications(res.data);
+    });
+  };
+
+  const fetchProfile = async () => {
+    userAPI
+      .getProfile()
+      .then((res) => {
+        setUserInfo({
+          uuid: res.data.uuid,
+          username: res.data.username,
+          email: res.data.email,
+          firstName: res.data.firstName,
+          lastName: res.data.lastName,
+          phone: res.data.phone,
+          bio: res.data.bio,
+          facebookUrl: res.data.facebookUrl,
+          xUrl: res.data.xUrl,
+          linkedinUrl: res.data.linkedinUrl,
+          instagramUrl: res.data.instagramUrl,
+          totalFileSize: res.data.totalFileSize,
+          maxFileSize: res.data.maxFileSize
         });
-    };
+      })
+      .catch((err) => {
+        showAlert(err.response.data.message, 'error');
+      });
+  };
 
+  useEffect(() => {
     fetchProfile();
+    fetchNotifications();
+    getAvatar();
+
+    const es = notificationAPI.subscribe((notification) => {
+      setNotifications((prev) => [notification, ...prev]);
+    });
+
+    return () => es.close();
   }, []);
 
   useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
-        event.preventDefault();
-        inputRef.current?.focus();
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, []);
+    const unread = notifications.some((n) => !n.read);
+    setNotifying(unread);
+  }, [notifications]);
 
   return (
     <header className="sticky top-0 z-99999 flex w-full border-gray-200 bg-white lg:border-b dark:border-gray-800 dark:bg-gray-900">
@@ -179,11 +203,16 @@ const AppHeader: React.FC = () => {
             {/* <!-- Dark Mode Toggler --> */}
             <ThemeToggleButton />
             {/* <!-- Dark Mode Toggler --> */}
-            <NotificationDropdown />
+            <NotificationDropdown
+              notifications={notifications}
+              fetchNotifications={fetchNotifications}
+              notifying={notifying}
+              avatarSrc={avatarSrc}
+            />
             {/* <!-- Notification Menu Area --> */}
           </div>
           {/* <!-- User Area --> */}
-          <UserDropdown userInfo={userInfo} />
+          <UserDropdown userInfo={userInfo} avatarSrc={avatarSrc} />
         </div>
       </div>
     </header>

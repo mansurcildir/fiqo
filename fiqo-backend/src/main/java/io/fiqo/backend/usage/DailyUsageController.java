@@ -1,16 +1,19 @@
 package io.fiqo.backend.usage;
 
+import io.fiqo.backend.exception.ItemNotFoundException;
 import io.fiqo.backend.result.ResponseFactory;
 import io.fiqo.backend.result.Result;
 import io.fiqo.backend.user.dto.UserDetails;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,14 +26,21 @@ public class DailyUsageController {
   private final @NotNull ResponseFactory responseFactory;
   private final @NotNull DailyUsageService dailyUsageService;
 
+  @Value("${fiqo.admin-token}")
+  private String adminToken;
+
   @PostMapping
-  public @NotNull ResponseEntity<Result> createDailyUsage(
-      final @NotNull Authentication authentication) {
-    final UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-    this.dailyUsageService.createDailyUsage(userDetails.userUuid());
+  public @NotNull ResponseEntity<Result> calculateDailyUsage(
+      final @RequestHeader("Admin-Token") String adminToken) {
+
+    if (!this.adminToken.equals(adminToken)) {
+      throw new ItemNotFoundException("adminTokenNotMatched");
+    }
+
+    this.dailyUsageService.calculateDailyUsages();
 
     return ResponseEntity.status(HttpStatus.OK)
-        .body(this.responseFactory.success(HttpStatus.OK.value(), "dailyUsageCreated"));
+        .body(this.responseFactory.success(HttpStatus.CREATED.value(), "dailyUsageCreated"));
   }
 
   @GetMapping

@@ -140,7 +140,7 @@ export default function NotificationDropdown({ notifying, notifications, avatarS
           ))}
         </ul>
         <Link
-          to="/"
+          to="#"
           className="mt-3 block rounded-lg border border-gray-300 bg-white px-4 py-2 text-center text-sm font-medium text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700"
         >
           View All Notifications

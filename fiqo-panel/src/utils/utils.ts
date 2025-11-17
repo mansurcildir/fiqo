@@ -3,9 +3,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import { createContext, useContext } from 'react';
 
 export const SPRING_BASE_URL =
-  window.env?.SPRING_BASE_URL ??
-  import.meta.env.VITE_SPRING_BASE_URL ??
-  "http://localhost:8080";
+  window.env?.SPRING_BASE_URL ?? import.meta.env.VITE_SPRING_BASE_URL ?? 'http://localhost:8080';
 
 dayjs.extend(relativeTime);
 

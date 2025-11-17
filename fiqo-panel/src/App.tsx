@@ -9,6 +9,7 @@ import Home from './pages/Dashboard/Home';
 import { AlertProvider } from './service/alert-service';
 import ForgotPassword from './pages/AuthPages/ForgotPassword';
 import RecoverPassword from './pages/AuthPages/RecoverPassword';
+import StatsChart from './pages/Charts/StatsChart';
 
 export default function App() {
   return (
@@ -19,9 +20,8 @@ export default function App() {
           {/* Dashboard Layout */}
           <Route element={<AppLayout />}>
             <Route index path="/" element={<Home />} />
-
-            {/* Others Page */}
             <Route path="/profile" element={<UserProfiles />} />
+            <Route path="/stats" element={<StatsChart />} />
           </Route>
 
           {/* Auth Layout */}

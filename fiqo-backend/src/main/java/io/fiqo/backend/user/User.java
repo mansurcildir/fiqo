@@ -74,6 +74,12 @@ public class User {
   @Column(name = "total_file_size", nullable = false)
   private long totalFileSize;
 
+  @Column(name = "max_file_size", nullable = false)
+  private long maxFileSize;
+
+  @Column(name = "daily_bandwidth", nullable = false)
+  private long dailyBandwidth;
+
   @Column(name = "deleted", nullable = false)
   private boolean deleted;
 

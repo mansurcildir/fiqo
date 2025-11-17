@@ -20,4 +20,5 @@ public record UserInfo(
     @Nullable String linkedinUrl,
     @Nullable String instagramUrl,
     long totalFileSize,
+    long maxFileSize,
     @NotNull List<String> roles) {}

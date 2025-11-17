@@ -22,7 +22,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
   boolean existsByEmail(@NotNull String email);
 
   @Modifying
-  @Query(
-      "update User u set u.totalFileSize = u.totalFileSize + :totalFileSize where u.uuid = :uuid")
-  void updateTotalFileSizeByUuid(@NotNull UUID uuid, long totalFileSize);
+  @Query("update User u set u.totalFileSize = u.totalFileSize + :size where u.uuid = :uuid")
+  void updateTotalFileSizeByUuid(@NotNull UUID uuid, long size);
+
+  @Modifying
+  @Query("update User u set u.dailyBandwidth = u.dailyBandwidth + :bandwidth where u.uuid = :uuid")
+  void updateDailyBandwidthByUuid(@NotNull UUID uuid, long bandwidth);
 }

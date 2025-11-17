@@ -11,4 +11,5 @@ export interface UserInfo {
   linkedinUrl: string;
   instagramUrl: string;
   totalFileSize: number;
+  maxFileSize: number;
 }

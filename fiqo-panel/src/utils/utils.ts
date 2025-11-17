@@ -1,7 +1,19 @@
 import dayjs from 'dayjs';
 import { createContext, useContext } from 'react';
 
-export const SPRING_BASE_URL = import.meta.env.VITE_SPRING_BASE_URL || 'http://localhost:8080';
+export const getEnv = () => {
+  if (typeof window !== 'undefined' && window.env?.SPRING_BASE_URL) {
+    return {
+      SPRING_BASE_URL: window.env.SPRING_BASE_URL
+    };
+  } else {
+    return {
+      SPRING_BASE_URL: import.meta.env.VITE_SPRING_BASE_URL || 'http://localhost:8080'
+    };
+  }
+};
+
+export const { SPRING_BASE_URL } = getEnv();
 
 type Theme = 'light' | 'dark';
 

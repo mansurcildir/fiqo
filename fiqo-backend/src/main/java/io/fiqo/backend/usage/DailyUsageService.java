@@ -1,6 +1,5 @@
 package io.fiqo.backend.usage;
 
-import io.fiqo.backend.exception.ItemNotFoundException;
 import io.fiqo.backend.user.User;
 import io.fiqo.backend.user.UserRepository;
 import java.util.List;
@@ -18,12 +17,15 @@ public class DailyUsageService {
   private final @NotNull UserRepository userRepository;
   private final @NotNull DailyUsageRepository dailyUsageRepository;
 
-  public void createDailyUsage(final @NotNull UUID userUuid) {
-    final User user =
-        this.userRepository
-            .findByUuid(userUuid)
-            .orElseThrow(() -> new ItemNotFoundException("userNotFound"));
+  public void calculateDailyUsages() {
+    final List<User> users = this.userRepository.findAll();
 
+    for (final @NotNull User user : users) {
+      this.calculateDailyUsage(user);
+    }
+  }
+
+  private void calculateDailyUsage(final @NotNull User user) {
     final DailyUsage dailyUsage = new DailyUsage();
     dailyUsage.setUuid(UUID.randomUUID());
     dailyUsage.setBandwidth(user.getDailyBandwidth());

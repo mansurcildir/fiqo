@@ -26,6 +26,7 @@ fiqo:
   backend-base-url: ${BACKEND_BASE_URL:http://localhost:8080}
   panel-base-url: ${PANEL_BASE_URL:http://localhost:5173}
   success-url: ${fiqo.panel-base-url}/login
+  admin-token: 09610fd7-b92f-490e-9c8b-63744f2112d3
 
 storage:
   strategy: ${STORAGE_STRATEGY:s3}

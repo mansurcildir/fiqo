@@ -49,7 +49,8 @@ export const notificationAPI = {
     const eventSource = new EventSourcePolyfill(`${SPRING_BASE_URL}/v1/notifications/stream`, {
       headers: {
         Authorization: `Bearer ${accessToken}`
-      }
+      },
+      heartbeatTimeout: 999999999999999
     });
 
     eventSource.addEventListener('notification', (event: MessageEvent) => {

@@ -96,6 +96,7 @@ public class SecurityConfig {
             "/v1/auth/login",
             "/v1/auth/refresh",
             "/v1/auth/token/**",
+            "/v1/daily-usages",
             "/actuator/**")
         .permitAll()
         .anyRequest()

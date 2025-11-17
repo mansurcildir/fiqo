@@ -52,7 +52,7 @@ public class NotificationService {
   public @NotNull List<NotificationInfo> getAllNotifications(final @NotNull UUID userUuid) {
     final List<Notification> notifications =
         this.notificationRepository.findAllByUserUuidOrderByCreatedAtDesc(userUuid);
-    return notifications.stream().map((this.notificationConverter::toNotificationInfo)).toList();
+    return notifications.stream().map(this.notificationConverter::toNotificationInfo).toList();
   }
 
   public void readNotification(final @NotNull UUID userUuid, final @NotNull UUID notificationUuid) {

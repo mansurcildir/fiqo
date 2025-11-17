@@ -7,8 +7,8 @@ import { UserInfo } from '../../model/user/UserInfo';
 import { useAlert } from '../../service/alert-service';
 
 interface Props {
-  userInfo: UserInfo | null;
-  avatarSrc: string;
+  userInfo?: UserInfo;
+  avatarSrc?: string;
 }
 
 export default function UserDropdown({ userInfo, avatarSrc }: Props) {

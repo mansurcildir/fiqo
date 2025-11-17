@@ -8,8 +8,8 @@ import { notificationAPI } from '../../service/notification-service';
 
 interface Props {
   notifications?: Notification[];
-  avatarSrc: string;
-  notifying: boolean;
+  avatarSrc?: string;
+  notifying?: boolean;
   fetchNotifications: () => void;
 }
 

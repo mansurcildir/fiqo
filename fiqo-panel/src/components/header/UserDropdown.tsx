@@ -1,21 +1,20 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { DropdownItem } from '../ui/dropdown/DropdownItem';
 import { Dropdown } from '../ui/dropdown/Dropdown';
 import { authAPI } from '../../service/auth-service';
 import { useNavigate } from 'react-router';
 import { UserInfo } from '../../model/user/UserInfo';
 import { useAlert } from '../../service/alert-service';
-import { userAPI } from '../../service/user-service';
 
 interface Props {
   userInfo: UserInfo | null;
+  avatarSrc: string;
 }
 
-export default function UserDropdown({ userInfo }: Props) {
+export default function UserDropdown({ userInfo, avatarSrc }: Props) {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const { showAlert } = useAlert();
-  const [avatarSrc, setAvatarSrc] = useState<string>('/images/user/user-01.jpg');
 
   function toggleDropdown() {
     setIsOpen(!isOpen);
@@ -24,25 +23,6 @@ export default function UserDropdown({ userInfo }: Props) {
   function closeDropdown() {
     setIsOpen(false);
   }
-
-  const getAvatar = async () => {
-    await userAPI
-      .getAvatar()
-      .then((buffer) => {
-        if (!buffer || buffer.byteLength === 0) {
-          return;
-        }
-        const base64 = btoa(new Uint8Array(buffer).reduce((data, byte) => data + String.fromCharCode(byte), ''));
-        setAvatarSrc(`data:image/png;base64,${base64}`);
-      })
-      .catch((err) => {
-        showAlert(err.response.data.message, 'error');
-      });
-  };
-
-  useEffect(() => {
-    getAvatar();
-  }, []);
 
   const logout = () => {
     authAPI

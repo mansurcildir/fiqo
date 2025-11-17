@@ -1,7 +1,10 @@
 import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
 import { createContext, useContext } from 'react';
 
 export const SPRING_BASE_URL = import.meta.env.VITE_SPRING_BASE_URL || 'http://localhost:8080';
+
+dayjs.extend(relativeTime);
 
 type Theme = 'light' | 'dark';
 
@@ -60,6 +63,14 @@ export const formatFileSize = (bytes: number): string => {
 
 export const formatDate = (dateStr: string, formatStr = 'DD/MM/YYYY HH:mm'): string => {
   return dayjs(dateStr).format(formatStr);
+};
+
+export const fromNow = (dateStr: string): string => {
+  return dayjs(dateStr).fromNow();
+};
+
+export const getDay = (dateStr: string): string => {
+  return dayjs(dateStr).date().toString();
 };
 
 export const normalizeEntries = <T extends object>(form: T): T => {

@@ -101,10 +101,10 @@ spring:
             email-uri: https://api.github.com/user/emails
 
   mail:
-    host: ${SMTP_HOST:YOUR_SMTP_HOST}
-    port: ${SMTP_PORT:537}
-    username: ${SENDER_EMAIL:YOUR_SENDER_EMAIL}
-    password: ${SENDER_EMAIL_PASSWORD:YOUR_SENDER_EMAIL_PASSWORD}
+    host: ${SMTP_HOST:smtp.gmail.com}
+    port: ${SMTP_PORT:587}
+    username: ${SENDER_EMAIL:mansurcildir@gmail.com  }
+    password: ${SENDER_EMAIL_PASSWORD:qhcj mvso cfpz pahx}
     properties:
       mail:
         smtp:

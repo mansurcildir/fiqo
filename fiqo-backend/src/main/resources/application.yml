@@ -63,7 +63,7 @@ spring:
     database: postgresql
 
   flyway:
-    enabled: true
+    enabled: ${FLYWAY_ENABLED:true}
 
   security:
     oauth2:

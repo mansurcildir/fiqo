@@ -79,7 +79,7 @@ public class FileService {
     this.storageStrategy.removeFile(path);
     this.updateUsage(userUuid, relativePath);
 
-    this.fileRepository.deleteAllByPathStartingWithAndUserUuid(relativePath, userUuid);
+    this.fileRepository.deleteByUserUuidAndPath(userUuid, relativePath, Instant.now());
   }
 
   public void removeFiles(final @NotNull UUID userUuid, final @NotNull String relativePath)
@@ -90,13 +90,13 @@ public class FileService {
     this.storageStrategy.removeFiles(path);
     this.updateUsages(userUuid, path);
 
-    this.fileRepository.deleteByPathAndUserUuid(path, userUuid);
+    this.fileRepository.deleteAllByUserUuidAndPathStartingWith(userUuid, path, Instant.now());
   }
 
   public @NotNull List<FileInfo> listFiles(
       final @NotNull UUID userUuid, final @NotNull String relativePath) {
 
-    return this.fileRepository.findAllByPathStartingWithAndUserUuid(relativePath, userUuid).stream()
+    return this.fileRepository.findAllByUserUuidAndPathStartingWith(userUuid, relativePath).stream()
         .map(this.fileConverter::toFileInfo)
         .toList();
   }
@@ -112,7 +112,7 @@ public class FileService {
 
     final File file =
         this.fileRepository
-            .findByPathAndUserUuid(sourceRelativePath, userUuid)
+            .findByUserUuidAndPath(userUuid, sourceRelativePath)
             .orElseThrow(() -> new ItemNotFoundException("fileNotFound"));
 
     this.storageStrategy.copyFile(sourcePath, targetPath);
@@ -144,7 +144,7 @@ public class FileService {
       final long size) {
 
     final Optional<File> file =
-        this.fileRepository.findByPathAndUserUuid(relativePath, user.getUuid());
+        this.fileRepository.findByUserUuidAndPath(user.getUuid(), relativePath);
 
     if (file.isEmpty()) {
       this.createFile(user, relativePath, hashHex, size);
@@ -194,7 +194,7 @@ public class FileService {
   private void updateUsage(final @NotNull UUID userUuid, final @NotNull String relativePath) {
     final File file =
         this.fileRepository
-            .findByPathAndUserUuid(relativePath, userUuid)
+            .findByUserUuidAndPath(userUuid, relativePath)
             .orElseThrow(() -> new ItemNotFoundException("fileNotFound"));
 
     this.userRepository.updateTotalFileSizeByUuid(userUuid, -1 * file.getSize());

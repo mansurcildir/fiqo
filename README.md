@@ -17,3 +17,4 @@ The project consists of 3 parts;
 ## Support
 
 For support, email mansurcildir@gmail.com
+https://drive.google.com/file/d/1LJqgFrqQVosCjkS--nrzYiSHWagxat7p/view?usp=drivesdk
